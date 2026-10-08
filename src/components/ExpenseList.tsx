@@ -382,11 +382,8 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
 
                       {/* Project & Purpose */}
                       <td className="py-3 px-3">
-                        <div className="font-semibold text-slate-800 truncate max-w-xs">
+                        <div className="font-semibold text-slate-800 truncate max-w-xs" title={expense.description}>
                           {expense.projectName || '-'}
-                        </div>
-                        <div className="text-[11px] text-slate-500 truncate max-w-xs">
-                          {expense.description}
                         </div>
                       </td>
 
