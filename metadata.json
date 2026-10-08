@@ -1,0 +1,8 @@
+{
+  "name": "品牌計畫 AI工具費用核銷系統",
+  "description": "台灣經濟研究院品牌計畫 AI 工具費用與車資核銷紀錄個人帳目管理系統。",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
