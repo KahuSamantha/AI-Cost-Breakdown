@@ -510,151 +510,261 @@ export const OffsetsPageView: React.FC<OffsetsPageViewProps> = ({
         </div>
       )}
 
-      {/* 區塊 6: 核銷紀錄表格 (依日期新到舊，包含 起始地點 與 到達地點) */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
-        <table className="w-full text-left text-xs">
-          <thead className="border-b border-slate-200 bg-slate-50 text-slate-700 font-bold select-none">
-            <tr>
-              <th className="py-3 px-3.5 w-10 text-center">
-                <button
-                  onClick={toggleSelectAll}
-                  className="cursor-pointer text-slate-400 hover:text-slate-700"
-                  title={allFilteredSelected ? '取消全選' : '全選'}
+      {/* 區塊 6: 核銷紀錄 (桌面版表格 + 手機版自適應全資訊卡片) */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+        {/* 手機版卡片清單 (md:hidden) - 起始/到達地與所有明細全展開、不需橫向滑動 */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {filteredOffsets.length === 0 ? (
+            <div className="py-12 text-center text-slate-500 px-4">
+              <p className="text-sm font-bold text-slate-800">尚無符合條件的核銷紀錄</p>
+              <p className="text-xs text-slate-500 mt-1">點擊右上角「新增核銷紀錄」記錄項目</p>
+            </div>
+          ) : (
+            filteredOffsets.map((item) => {
+              const isTaxi = item.offsetType === 'taxi';
+              const isChecked = selectedIds.has(item.id);
+
+              return (
+                <div
+                  key={item.id}
+                  className={`p-3.5 space-y-2.5 transition-colors ${
+                    isChecked ? 'bg-pink-50/40' : 'bg-white'
+                  }`}
                 >
-                  {allFilteredSelected ? (
-                    <CheckSquare className="h-4 w-4 text-pink-600" />
-                  ) : (
-                    <Square className="h-4 w-4" />
-                  )}
-                </button>
-              </th>
-              <th className="py-3.5 px-4 whitespace-nowrap">單據日期</th>
-              <th className="py-3.5 px-4">事由 / 憑證名稱</th>
-              <th className="py-3.5 px-4 whitespace-nowrap">抵充類別</th>
-              <th className="py-3.5 px-4">起始地點</th>
-              <th className="py-3.5 px-4">到達地點</th>
-              <th className="py-3.5 px-4 text-right whitespace-nowrap">抵充金額 (NT$)</th>
-              <th className="py-3.5 px-4 text-right whitespace-nowrap">操作</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {filteredOffsets.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="py-12 text-center text-slate-500">
-                  <div className="max-w-sm mx-auto space-y-2">
-                    <p className="text-sm font-bold text-slate-800">尚無符合條件的核銷紀錄</p>
-                    <p className="text-xs text-slate-500">
-                      點擊右上角「新增核銷紀錄」記錄項目
-                    </p>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              filteredOffsets.map((item) => {
-                const isTaxi = item.offsetType === 'taxi';
-                const isChecked = selectedIds.has(item.id);
-                return (
-                  <tr 
-                    key={item.id} 
-                    className={`hover:bg-slate-50/80 transition-colors ${isChecked ? 'bg-pink-50/30' : ''}`}
-                  >
-                    {/* Checkbox */}
-                    <td className="py-3 px-3.5 text-center">
+                  {/* Top row: Checkbox, Title & Amount */}
+                  <div className="flex items-start justify-between gap-2.5">
+                    <div className="flex items-start gap-2.5 min-w-0 flex-1">
                       <button
                         onClick={() => toggleSelectOne(item.id)}
-                        className="cursor-pointer text-slate-400 hover:text-slate-700"
+                        className="mt-0.5 cursor-pointer text-slate-400 hover:text-slate-700 shrink-0"
                       >
                         {isChecked ? (
-                          <CheckSquare className="h-4 w-4 text-pink-600" />
+                          <CheckSquare className="h-4.5 w-4.5 text-pink-600" />
                         ) : (
-                          <Square className="h-4 w-4" />
+                          <Square className="h-4.5 w-4.5" />
                         )}
                       </button>
-                    </td>
-
-                    {/* Date */}
-                    <td className="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap font-medium">
-                      <span className="font-bold text-pink-700">{formatDate(item.date)}</span>
-                    </td>
-
-                    {/* Title */}
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                        {isTaxi ? (
-                          <Car className="h-3.5 w-3.5 text-pink-600 shrink-0" />
-                        ) : (
-                          <Building2 className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
-                        )}
-                        <span>{item.title}</span>
-                      </div>
-                      {item.notes && (
-                        <div className="text-[11px] text-slate-500 font-normal mt-0.5">
-                          {item.notes}
+                      <div className="min-w-0">
+                        <div className="font-extrabold text-slate-900 text-sm leading-snug break-words">
+                          {item.title}
                         </div>
-                      )}
-                    </td>
+                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                          <span className={`inline-flex items-center px-1.5 py-0.2 rounded border text-[10px] font-bold ${
+                            isTaxi
+                              ? 'bg-pink-50 text-pink-700 border-pink-200'
+                              : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                          }`}>
+                            {isTaxi ? '計程車車資' : '直接撥款'}
+                          </span>
+                          <span className="text-[11px] text-pink-700 font-mono font-bold">
+                            {formatDate(item.date)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
-                    {/* Type badge */}
-                    <td className="py-3.5 px-4 whitespace-nowrap font-medium">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-lg border text-[11px] font-bold ${
-                        isTaxi
-                          ? 'bg-pink-50 text-pink-700 border-pink-200'
-                          : 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                      }`}>
-                        {isTaxi ? '計程車車資' : '直接撥款'}
-                      </span>
-                    </td>
+                    <div className="text-right shrink-0">
+                      <div className="font-black text-pink-600 text-base font-mono">
+                        - {formatTWD(item.amountTWD)}
+                      </div>
+                    </div>
+                  </div>
 
-                    {/* 起始地點 */}
-                    <td className="py-3.5 px-4 text-slate-700">
-                      <div className="flex items-center gap-1 text-[11px] font-medium text-slate-800">
+                  {/* Route: 起始地點 → 到達地點 (自適應展開) */}
+                  {(item.origin || item.destination) && (
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-700 bg-slate-50 border border-slate-200/80 p-2 rounded-lg flex-wrap">
+                      <div className="flex items-center gap-1">
                         <MapPin className="h-3 w-3 text-pink-500 shrink-0" />
-                        <span>{item.origin || '-'}</span>
+                        <span className="font-medium">起: {item.origin || '-'}</span>
                       </div>
-                    </td>
-
-                    {/* 到達地點 */}
-                    <td className="py-3.5 px-4 text-slate-700">
-                      <div className="flex items-center gap-1 text-[11px] font-medium text-slate-800">
+                      <span className="text-slate-400">→</span>
+                      <div className="flex items-center gap-1">
                         <Navigation className="h-3 w-3 text-indigo-500 shrink-0" />
-                        <span>{item.destination || '-'}</span>
+                        <span className="font-medium">訖: {item.destination || '-'}</span>
                       </div>
-                    </td>
+                    </div>
+                  )}
 
-                    {/* Amount */}
-                    <td className="py-3.5 px-4 text-right font-black text-pink-600 font-mono tabular-nums text-sm sm:text-base whitespace-nowrap">
-                      - {formatTWD(item.amountTWD)}
-                    </td>
+                  {/* Notes if any */}
+                  {item.notes && (
+                    <div className="text-[11px] text-slate-500 bg-slate-50/50 px-2 py-1 rounded">
+                      備註: {item.notes}
+                    </div>
+                  )}
 
-                    {/* Actions */}
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1">
+                  {/* Bottom Actions Row */}
+                  <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-100 text-xs">
+                    <button
+                      onClick={() => handleStartEdit(item)}
+                      className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg cursor-pointer transition-colors flex items-center gap-1 text-xs font-semibold"
+                    >
+                      <Edit3 className="h-3.5 w-3.5" />
+                      <span>編輯</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`確定要刪除「${item.title}」這筆核銷紀錄嗎？`)) {
+                          onDeleteOffset(item.id);
+                        }
+                      }}
+                      className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors flex items-center gap-1 text-xs font-semibold"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      <span>刪除</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* 桌面版完整表格 (hidden md:block) */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-700 font-bold select-none">
+              <tr>
+                <th className="py-3 px-3.5 w-10 text-center">
+                  <button
+                    onClick={toggleSelectAll}
+                    className="cursor-pointer text-slate-400 hover:text-slate-700"
+                    title={allFilteredSelected ? '取消全選' : '全選'}
+                  >
+                    {allFilteredSelected ? (
+                      <CheckSquare className="h-4 w-4 text-pink-600" />
+                    ) : (
+                      <Square className="h-4 w-4" />
+                    )}
+                  </button>
+                </th>
+                <th className="py-3.5 px-4 whitespace-nowrap">單據日期</th>
+                <th className="py-3.5 px-4">事由 / 憑證名稱</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">抵充類別</th>
+                <th className="py-3.5 px-4">起始地點</th>
+                <th className="py-3.5 px-4">到達地點</th>
+                <th className="py-3.5 px-4 text-right whitespace-nowrap">抵充金額 (NT$)</th>
+                <th className="py-3.5 px-4 text-right whitespace-nowrap">操作</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filteredOffsets.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-slate-500">
+                    <div className="max-w-sm mx-auto space-y-2">
+                      <p className="text-sm font-bold text-slate-800">尚無符合條件的核銷紀錄</p>
+                      <p className="text-xs text-slate-500">
+                        點擊右上角「新增核銷紀錄」記錄項目
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredOffsets.map((item) => {
+                  const isTaxi = item.offsetType === 'taxi';
+                  const isChecked = selectedIds.has(item.id);
+                  return (
+                    <tr 
+                      key={item.id} 
+                      className={`hover:bg-slate-50/80 transition-colors ${isChecked ? 'bg-pink-50/30' : ''}`}
+                    >
+                      {/* Checkbox */}
+                      <td className="py-3 px-3.5 text-center">
                         <button
-                          onClick={() => handleStartEdit(item)}
-                          title="編輯此核銷項目"
-                          className="p-1.5 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
+                          onClick={() => toggleSelectOne(item.id)}
+                          className="cursor-pointer text-slate-400 hover:text-slate-700"
                         >
-                          <Edit3 className="h-3.5 w-3.5" />
+                          {isChecked ? (
+                            <CheckSquare className="h-4 w-4 text-pink-600" />
+                          ) : (
+                            <Square className="h-4 w-4" />
+                          )}
                         </button>
-                        <button
-                          onClick={() => {
-                            if (window.confirm(`確定要刪除「${item.title}」這筆核銷紀錄嗎？`)) {
-                              onDeleteOffset(item.id);
-                            }
-                          }}
-                          title="刪除"
-                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 cursor-pointer transition-colors"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                      </td>
+
+                      {/* Date */}
+                      <td className="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap font-medium">
+                        <span className="font-bold text-pink-700">{formatDate(item.date)}</span>
+                      </td>
+
+                      {/* Title */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                          {isTaxi ? (
+                            <Car className="h-3.5 w-3.5 text-pink-600 shrink-0" />
+                          ) : (
+                            <Building2 className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                          )}
+                          <span>{item.title}</span>
+                        </div>
+                        {item.notes && (
+                          <div className="text-[11px] text-slate-500 font-normal mt-0.5">
+                            {item.notes}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Type badge */}
+                      <td className="py-3.5 px-4 whitespace-nowrap font-medium">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-lg border text-[11px] font-bold ${
+                          isTaxi
+                            ? 'bg-pink-50 text-pink-700 border-pink-200'
+                            : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                        }`}>
+                          {isTaxi ? '計程車車資' : '直接撥款'}
+                        </span>
+                      </td>
+
+                      {/* 起始地點 */}
+                      <td className="py-3.5 px-4 text-slate-700">
+                        <div className="flex items-center gap-1 text-[11px] font-medium text-slate-800">
+                          <MapPin className="h-3 w-3 text-pink-500 shrink-0" />
+                          <span>{item.origin || '-'}</span>
+                        </div>
+                      </td>
+
+                      {/* 到達地點 */}
+                      <td className="py-3.5 px-4 text-slate-700">
+                        <div className="flex items-center gap-1 text-[11px] font-medium text-slate-800">
+                          <Navigation className="h-3 w-3 text-indigo-500 shrink-0" />
+                          <span>{item.destination || '-'}</span>
+                        </div>
+                      </td>
+
+                      {/* Amount */}
+                      <td className="py-3.5 px-4 text-right font-black text-pink-600 font-mono tabular-nums text-sm sm:text-base whitespace-nowrap">
+                        - {formatTWD(item.amountTWD)}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleStartEdit(item)}
+                            title="編輯此核銷項目"
+                            className="p-1.5 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
+                          >
+                            <Edit3 className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`確定要刪除「${item.title}」這筆核銷紀錄嗎？`)) {
+                                onDeleteOffset(item.id);
+                              }
+                            }}
+                            title="刪除"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 cursor-pointer transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* 批量刪除確認彈窗 (Batch Delete Confirmation Modal for Offsets) */}

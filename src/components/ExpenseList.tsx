@@ -297,9 +297,129 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
         </div>
       )}
 
-      {/* 區塊 5: 主支出表格 (全台幣、無匯率、無歸屬專案與用途) */}
+      {/* 區塊 5: 主支出表格 (桌面版表格 + 手機版自適應全資訊卡片) */}
       <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs text-slate-900">
-        <div className="overflow-x-auto">
+        {/* 手機版卡片清單 (md:hidden) - 資訊全展開、零遮蔽、不需橫向滾動 */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {filteredExpenses.length === 0 ? (
+            <div className="py-12 text-center text-slate-500 px-4">
+              <p className="text-sm font-bold text-slate-800">尚無符合條件的支出紀錄</p>
+              <p className="text-xs text-slate-500 mt-1">點擊右上角「記一筆 AI 支出」開始記錄</p>
+            </div>
+          ) : (
+            filteredExpenses.map((expense) => {
+              const isChecked = selectedIds.has(expense.id);
+              const matchedOffsets = offsets.filter((o) => o.targetExpenseId === expense.id);
+              const offsetSum = matchedOffsets.reduce((s, o) => s + o.amountTWD, 0);
+              const remaining = expense.amountTWD - offsetSum;
+
+              return (
+                <div
+                  key={expense.id}
+                  className={`p-3.5 space-y-2.5 transition-colors ${
+                    isChecked ? 'bg-indigo-50/50' : 'bg-white'
+                  }`}
+                >
+                  {/* Top row: Checkbox, Tool Name & Amount */}
+                  <div className="flex items-start justify-between gap-2.5">
+                    <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                      <button
+                        onClick={() => toggleSelectOne(expense.id)}
+                        className="mt-0.5 cursor-pointer text-slate-400 hover:text-slate-700 shrink-0"
+                      >
+                        {isChecked ? (
+                          <CheckSquare className="h-4.5 w-4.5 text-indigo-600" />
+                        ) : (
+                          <Square className="h-4.5 w-4.5" />
+                        )}
+                      </button>
+                      <div className="min-w-0">
+                        <div className="font-extrabold text-slate-900 text-sm leading-snug break-words">
+                          {expense.toolName}
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                          <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+                            {CATEGORY_LABELS[expense.toolCategory] || expense.toolCategory}
+                          </span>
+                          <span className="text-[11px] text-slate-500 font-mono font-medium">
+                            {formatDate(expense.paymentDate)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <div className="font-black text-slate-900 text-base font-mono">
+                        {formatTWD(expense.amountTWD)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment method & invoice detail */}
+                  <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg">
+                    <div className="truncate">
+                      <span>{expense.paymentMethod || '信用卡支付'}</span>
+                      {expense.accountIdentifier && <span> · {expense.accountIdentifier}</span>}
+                    </div>
+                    {expense.invoiceNumber && (
+                      <span className="font-mono text-slate-400 shrink-0">單號: {expense.invoiceNumber}</span>
+                    )}
+                  </div>
+
+                  {/* Offset badge if any */}
+                  {matchedOffsets.length > 0 && (
+                    <div className="inline-flex items-center gap-1 text-[11px] text-pink-700 bg-pink-50 border border-pink-200 px-2 py-0.5 rounded-lg font-mono font-bold">
+                      <Car className="h-3 w-3 text-pink-600 shrink-0" />
+                      <span>車資抵充 -{formatTWD(offsetSum)}</span>
+                      <span className="text-slate-500">(待核銷餘額 {formatTWD(remaining)})</span>
+                    </div>
+                  )}
+
+                  {/* Bottom Actions Row */}
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
+                    <div>
+                      {expense.receiptUrl || expense.receiptName ? (
+                        <button
+                          onClick={() => onViewReceipt(expense)}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-lg cursor-pointer transition-colors shadow-xs"
+                        >
+                          <Receipt className="h-3 w-3 text-indigo-600" />
+                          <span>查看/下載憑證</span>
+                        </button>
+                      ) : (
+                        <span className="text-[11px] text-slate-400">無收據附件</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => onEditExpense(expense)}
+                        className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg cursor-pointer transition-colors flex items-center gap-1 text-xs font-semibold"
+                      >
+                        <Edit3 className="h-3.5 w-3.5" />
+                        <span>編輯</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`確定要刪除「${expense.toolName}」這筆支出紀錄嗎？`)) {
+                            onDeleteExpense(expense.id);
+                          }
+                        }}
+                        className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors flex items-center gap-1 text-xs font-semibold"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>刪除</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* 桌面版完整表格 (hidden md:block) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 font-bold select-none">
               <tr>

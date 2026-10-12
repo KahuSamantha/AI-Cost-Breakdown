@@ -72,65 +72,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* 核心數據與最新明細卡片容器 */}
       <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-sm p-3.5 sm:p-6 lg:p-8 shadow-sm text-slate-900 space-y-5 sm:space-y-7">
-        {/* 區塊 1: 三大核心數據卡片 (全台幣，視覺質感提升) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        {/* Card 1: AI 累計總支出 */}
-        <div 
-          onClick={onNavigateToExpenses}
-          className="rounded-2xl border border-indigo-100 bg-indigo-50/50 hover:bg-indigo-50/80 hover:border-indigo-300 p-4 sm:p-5 transition-all cursor-pointer group shadow-xs"
-        >
-          <div className="flex items-center justify-between text-xs text-indigo-900 font-bold">
-            <span>1. AI 累計總支出 (NT$)</span>
-            <span className="text-indigo-600 group-hover:underline transition-all flex items-center gap-0.5 text-[11px] font-bold">
-              明細表 <ArrowRight className="h-3 w-3" />
-            </span>
-          </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-black font-mono text-indigo-950 tabular-nums">
-            {formatTWD(totalExpenseTWD)}
-          </div>
-          <div className="mt-1 text-[11px] text-indigo-700 font-medium">
-            共計 <strong className="text-indigo-950 font-mono">{expenses.length} 筆</strong> 費用明細
-          </div>
-        </div>
-
-        {/* Card 2: 已核銷金額 */}
-        <div 
-          onClick={onNavigateToOffsets}
-          className="rounded-2xl border border-pink-100 bg-pink-50/50 hover:bg-pink-50/80 hover:border-pink-300 p-4 sm:p-5 transition-all cursor-pointer group shadow-xs"
-        >
-          <div className="flex items-center justify-between text-xs text-pink-900 font-bold">
-            <span>2. 已核銷金額 (NT$)</span>
-            <span className="text-pink-600 group-hover:underline transition-all flex items-center gap-0.5 text-[11px] font-bold">
-              核銷明細 <ArrowRight className="h-3 w-3" />
-            </span>
-          </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-black font-mono text-pink-600 tabular-nums">
-            - {formatTWD(totalOffsetTWD)}
-          </div>
-          <div className="mt-1 text-[11px] text-pink-700 font-medium truncate">
-            計程車單抵充: <strong className="text-pink-700 font-mono">{formatTWD(taxiTotal)}</strong> ({taxiOffsets.length} 筆)
-          </div>
-        </div>
-
-        {/* Card 3: 尚餘未核銷金額 */}
-        <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-4 sm:p-5 shadow-xs">
-          <div className="flex items-center justify-between text-xs text-purple-900 font-extrabold">
-            <span>3. 尚餘未核銷金額 (NT$)</span>
-            <span className="text-[10px] font-extrabold bg-purple-600 text-white px-2 py-0.5 rounded-full shadow-xs">
-              待請款餘額
-            </span>
-          </div>
-          <div className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-purple-950 tabular-nums">
-            {formatTWD(netRemainingTWD)}
-          </div>
-          <div className="mt-1 text-[11px] text-purple-700 font-medium">
-            待向財務請款或以車資抵充之淨額
-          </div>
-        </div>
-      </div>
-
-      {/* 區塊 3: 兩大清單左右對照 (由新到舊排序) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 pt-1">
+        {/* 兩大清單左右對照 (由新到舊排序) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* 左側子區塊: AI 支出清單 */}
         <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-3.5 sm:p-5 space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/80">

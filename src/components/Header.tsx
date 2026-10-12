@@ -133,6 +133,9 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <ReceiptText className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">AI 支出</span>
+            <span className="font-mono text-[10px] text-indigo-900 bg-indigo-100/90 px-1 py-0.2 rounded font-bold">
+              ${totalExpensesAmount.toLocaleString()}
+            </span>
           </button>
 
           <button
@@ -145,6 +148,9 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Car className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">車資核銷</span>
+            <span className="font-mono text-[10px] text-pink-900 bg-pink-100/90 px-1 py-0.2 rounded font-bold">
+              ${offsetsTotal.toLocaleString()}
+            </span>
           </button>
         </nav>
       </div>
