@@ -145,6 +145,18 @@ export default function App() {
     updateExpenses(updated);
   };
 
+  // Batch delete expenses
+  const handleBatchDeleteExpenses = (ids: string[]) => {
+    const updated = expenses.filter((e) => !ids.includes(e.id));
+    updateExpenses(updated);
+  };
+
+  // Batch delete offsets
+  const handleBatchDeleteOffsets = (ids: string[]) => {
+    const updated = offsets.filter((o) => !ids.includes(o.id));
+    updateOffsets(updated);
+  };
+
   // Batch create formal claim
   const handleBatchCreateClaim = (selectedIds: string[]) => {
     const selectedItems = expenses.filter((e) => selectedIds.includes(e.id));
@@ -164,10 +176,10 @@ export default function App() {
       companyTaxId: userProfile.companyTaxId,
       expenseIds: selectedIds,
       totalAmountTWD: totalTWD,
-      totalOriginalUSD: selectedItems.filter(e => e.currency === 'USD').reduce((s, e) => s + e.originalAmount, 0),
+      totalOriginalUSD: selectedItems.filter(e => e.currency === 'USD').reduce((s, e) => s + (e.originalAmount || 0), 0),
       status: 'submitted',
       submissionDate: dateObj.toISOString().slice(0, 10),
-      notes: '台灣經濟研究院 品牌計畫 AI 工具與 API 額度核銷請款，附電子收據及水單。',
+      notes: '台灣經濟研究院 品牌計畫 AI 工具費用核銷請款單。',
       createdAt: dateObj.toISOString(),
     };
 
@@ -255,6 +267,7 @@ export default function App() {
               setIsExpenseModalOpen(true);
             }}
             onDeleteExpense={handleDeleteExpense}
+            onBatchDeleteExpenses={handleBatchDeleteExpenses}
             onBatchCreateClaim={handleBatchCreateClaim}
             onViewReceipt={(exp) => setSelectedReceiptExpense(exp)}
             onNavigateToOffsets={() => setCurrentTab('offsets')}
@@ -268,6 +281,7 @@ export default function App() {
             onAddOffset={handleAddOffset}
             onSaveOffset={handleSaveOffset}
             onDeleteOffset={handleDeleteOffset}
+            onBatchDeleteOffsets={handleBatchDeleteOffsets}
             onUpdateOffsetStatus={handleUpdateOffsetStatus}
             onNavigateToExpenses={() => setCurrentTab('expenses')}
             onOpenNewExpense={() => {

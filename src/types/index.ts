@@ -32,9 +32,9 @@ export interface ExpenseRecord {
   toolName: string;                     // 工具名稱 (例如 OpenAI API)
   toolCategory: ToolCategory;           // 工具類別
   billingType: BillingType;             // 計費週期
-  projectName: string;                  // 歸屬專案名稱 (例如 AI 客服系統)
+  projectName?: string;                 // 歸屬專案名稱 (選填相容)
   department: string;                   // 申請部門
-  description: string;                  // 費用用途說明
+  description?: string;                 // 費用用途說明 (選填相容)
   paidByName: string;                   // 代墊人姓名
   paymentMethod: string;                // 支付卡別 (例如 國泰 CUBE 卡 2394)
   accountIdentifier: string;            // 服務帳號/Email (例如 team-ai@corp.com)
@@ -42,15 +42,15 @@ export interface ExpenseRecord {
   periodStart?: string;                 // 服務週期開始
   periodEnd?: string;                   // 服務週期結束
   
-  // 金額與匯率計算
-  currency: Currency;                   // 原幣幣別
-  originalAmount: number;               // 原幣金額 (例如 20.00)
-  exchangeRate: number;                 // 換算匯率 (例如 32.2)
-  hasForeignFee: boolean;               // 是否加計海外手續費 (1.5%)
-  foreignFeeRate: number;               // 海外手續費率 (預設 0.015)
-  foreignFeeTWD: number;                // 手續費台幣金額
-  subtotalTWD: number;                  // 台幣本金 (originalAmount * exchangeRate)
-  amountTWD: number;                    // 實付台幣總額 (subtotalTWD + foreignFeeTWD)
+  // 金額 (皆以台幣計算)
+  amountTWD: number;                    // 實付台幣總額 (NT$)
+  currency?: Currency;                  // 幣別 (預設 TWD)
+  originalAmount?: number;              // 原幣金額 (相容)
+  exchangeRate?: number;                // 換算匯率 (相容)
+  hasForeignFee?: boolean;              // 是否加計海外手續費 (相容)
+  foreignFeeRate?: number;              // 海外手續費率 (相容)
+  foreignFeeTWD?: number;               // 手續費台幣金額 (相容)
+  subtotalTWD?: number;                 // 台幣本金 (相容)
   
   // 發票憑證
   invoiceNumber: string;                // Invoice/憑證號碼
@@ -104,8 +104,7 @@ export interface AIToolPreset {
   name: string;
   category: ToolCategory;
   billingType: BillingType;
-  defaultCurrency: Currency;
-  typicalAmount: number;
+  defaultAmountTWD: number;
   description: string;
   vendorName: string;
 }
@@ -125,9 +124,11 @@ export interface ReimbursementOffset {
   title: string;              // 沖銷事由 (例如 9/8 計程車單據沖銷)
   offsetType: OffsetType;     // 沖銷方式
   amountTWD: number;          // 沖銷金額 (TWD)
+  origin: string;             // 起始地點 (例如: 台經院德惠大樓)
+  destination: string;        // 到達地點 (例如: 經濟部產業發展署)
   targetExpenseId?: string;   // 針對哪一筆 AI 支出沖銷 (選填)
   targetExpenseName?: string; // 針對工具名稱 (例如 Perplexity Pro)
-  receiptProof?: string;      // 憑證編號或附註
+  receiptProof?: string;      // 舊資料相容 (選填)
   status: 'claimed' | 'reimbursed'; // 沖銷狀態
   notes?: string;             // 說明
   createdAt: string;

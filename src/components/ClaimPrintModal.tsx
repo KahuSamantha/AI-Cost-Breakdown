@@ -1,7 +1,7 @@
 import React from 'react';
-import { X, Printer, Download, CheckCircle2, Building, UserCheck } from 'lucide-react';
+import { X, Printer, CheckCircle, FileText } from 'lucide-react';
 import { ReimbursementBatch, ExpenseRecord, UserProfile } from '../types';
-import { formatTWD, formatOriginalCurrency, formatDate } from '../utils/formatters';
+import { formatTWD, formatDate } from '../utils/formatters';
 import { CATEGORY_LABELS } from '../data/presets';
 
 interface ClaimPrintModalProps {
@@ -19,11 +19,10 @@ export const ClaimPrintModal: React.FC<ClaimPrintModalProps> = ({
   expenses,
   userProfile,
 }) => {
-  if (!isOpen) return null;
+  if (!isOpen || !batch) return null;
 
   const batchExpenses = expenses.filter((e) => batch.expenseIds.includes(e.id));
   const totalAmount = batchExpenses.reduce((sum, e) => sum + e.amountTWD, 0);
-  const totalForeignFees = batchExpenses.reduce((sum, e) => sum + (e.foreignFeeTWD || 0), 0);
 
   const handlePrint = () => {
     window.print();
@@ -103,11 +102,9 @@ export const ClaimPrintModal: React.FC<ClaimPrintModalProps> = ({
                       <th className="py-2.5 px-3 w-8 text-center">#</th>
                       <th className="py-2.5 px-3">付款日期</th>
                       <th className="py-2.5 px-3">AI 服務項目</th>
-                      <th className="py-2.5 px-3">專案用途說明</th>
-                      <th className="py-2.5 px-3 text-right">原幣金額</th>
-                      <th className="py-2.5 px-3 text-right">匯率</th>
-                      <th className="py-2.5 px-3 text-right">手續費</th>
-                      <th className="py-2.5 px-3 text-right">折合台幣 (TWD)</th>
+                      <th className="py-2.5 px-3">服務類別</th>
+                      <th className="py-2.5 px-3">付款方式 / 帳號</th>
+                      <th className="py-2.5 px-3 text-right">支出金額 (NT$)</th>
                       <th className="py-2.5 px-3 text-center">憑證號碼</th>
                     </tr>
                   </thead>
@@ -120,30 +117,17 @@ export const ClaimPrintModal: React.FC<ClaimPrintModalProps> = ({
                         <td className="py-2.5 px-3 whitespace-nowrap font-mono">
                           {formatDate(item.paymentDate)}
                         </td>
-                        <td className="py-2.5 px-3">
-                          <div className="font-bold text-slate-900">
-                            {item.toolName}
-                          </div>
-                          <div className="text-[11px] text-slate-500">
-                            {CATEGORY_LABELS[item.toolCategory] || item.toolCategory}
-                          </div>
+                        <td className="py-2.5 px-3 font-bold text-slate-900">
+                          {item.toolName}
                         </td>
-                        <td className="py-2.5 px-3">
-                          <div className="font-medium text-slate-800">
-                            {item.projectName}
-                          </div>
-                          <div className="text-[11px] text-slate-500 max-w-xs">
-                            {item.description}
-                          </div>
+                        <td className="py-2.5 px-3 text-slate-600">
+                          {CATEGORY_LABELS[item.toolCategory] || item.toolCategory}
                         </td>
-                        <td className="py-2.5 px-3 text-right whitespace-nowrap font-mono tabular-nums">
-                          {formatOriginalCurrency(item.originalAmount, item.currency)}
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                          {item.exchangeRate}
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                          {item.hasForeignFee ? formatTWD(item.foreignFeeTWD) : '-'}
+                        <td className="py-2.5 px-3 text-slate-600">
+                          <div>{item.paymentMethod || '信用卡'}</div>
+                          {item.accountIdentifier && (
+                            <div className="text-[10px] text-slate-400 font-mono">{item.accountIdentifier}</div>
+                          )}
                         </td>
                         <td className="py-2.5 px-3 text-right font-black text-slate-900 font-mono tabular-nums">
                           {formatTWD(item.amountTWD)}
@@ -156,12 +140,11 @@ export const ClaimPrintModal: React.FC<ClaimPrintModalProps> = ({
                   </tbody>
                   <tfoot className="bg-slate-50 font-bold border-t-2 border-slate-200">
                     <tr>
-                      <td colSpan={6} className="py-3 px-3 text-right text-xs text-slate-600">
-                        海外刷卡手續費小計 (1.5%): 
-                        <span className="font-mono ml-1 font-bold">{formatTWD(totalForeignFees)}</span>
+                      <td colSpan={5} className="py-3 px-3 text-right text-xs text-slate-600">
+                        請款總筆數: <span className="font-mono">{batchExpenses.length} 筆</span>
                       </td>
-                      <td colSpan={2} className="py-3 px-3 text-right text-sm text-slate-900 font-black font-mono">
-                        實支請款總計: {formatTWD(totalAmount)}
+                      <td className="py-3 px-3 text-right text-sm text-slate-900 font-black font-mono">
+                        實支總計: {formatTWD(totalAmount)}
                       </td>
                       <td></td>
                     </tr>
@@ -177,7 +160,7 @@ export const ClaimPrintModal: React.FC<ClaimPrintModalProps> = ({
               </span>
               <p className="mt-1 text-slate-600 leading-relaxed">
                 {batch.notes ||
-                  '台灣經濟研究院 品牌計畫 AI 工具費用核銷請款單，已檢附國外電子收據與水單備查，請惠予核銷撥款。'}
+                  '台灣經濟研究院 品牌計畫 AI 工具費用核銷請款單，已檢附電子收據憑證備查，請惠予核銷撥款。'}
               </p>
             </div>
 

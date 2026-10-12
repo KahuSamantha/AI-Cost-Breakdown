@@ -13,9 +13,10 @@ export const INITIAL_OFFSETS: ReimbursementOffset[] = [
     title: '9/25 計程車單 (跨單位會議車資抵充)',
     offsetType: 'taxi',
     amountTWD: 637,
+    origin: '台經院 (德惠大樓)',
+    destination: '經濟部產業發展署',
     targetExpenseId: 'EXP-CLAUDE-202606',
     targetExpenseName: 'Claude pro 代墊抵充',
-    receiptProof: '台北智慧計程車單 #TX-0925-3',
     status: 'reimbursed',
     notes: '以品牌計畫外勤計程車單抵充 AI 工具款項 NT$ 637',
     createdAt: '2026-09-25T09:00:00.000Z',
@@ -26,9 +27,10 @@ export const INITIAL_OFFSETS: ReimbursementOffset[] = [
     title: '9/22 計程車單 (品牌策略顧問會議車資抵充)',
     offsetType: 'taxi',
     amountTWD: 990,
+    origin: '台經院 (德惠大樓)',
+    destination: '台北101 (顧問會議)',
     targetExpenseId: 'EXP-CLAUDE-202609',
     targetExpenseName: '9月 Claude pro / Token API 儲值',
-    receiptProof: 'Uber乘車電子明細 #TX-0922-8',
     status: 'reimbursed',
     notes: '以計程車單抵充 9月份 AI 工具與 API 額度',
     createdAt: '2026-09-22T09:00:00.000Z',
@@ -39,9 +41,10 @@ export const INITIAL_OFFSETS: ReimbursementOffset[] = [
     title: '9/16 計程車單 (外部拜訪車資抵充)',
     offsetType: 'taxi',
     amountTWD: 420,
+    origin: '台北車站',
+    destination: '台經院 (德惠大樓)',
     targetExpenseId: 'EXP-CLAUDE-202608',
     targetExpenseName: '8月 Claude pro / 9/21 儲值抵充',
-    receiptProof: '台灣大車隊電子乘車證明 #TX-0916-4',
     status: 'reimbursed',
     notes: '品牌計畫外訪，以計程車車資抵充 AI 工具款項',
     createdAt: '2026-09-16T09:00:00.000Z',
@@ -52,9 +55,10 @@ export const INITIAL_OFFSETS: ReimbursementOffset[] = [
     title: '9/8 計程車單 (抵充 Perplexity Pro 年繳尾款)',
     offsetType: 'taxi',
     amountTWD: 566,
+    origin: '台經院',
+    destination: '國科會科技大樓',
     targetExpenseId: 'EXP-PERPLEXITY-202609',
     targetExpenseName: 'PERPLEXITY PRO 2026/9/10-2027/9/10',
-    receiptProof: '大都會車資乘車證明 #TX-0908-1',
     status: 'reimbursed',
     notes: '以車資單抵充 Perplexity Pro 年費超出預算部分 (整數抵充至 NT$ 6,000)',
     createdAt: '2026-09-08T09:00:00.000Z',
@@ -428,7 +432,14 @@ export function getStoredOffsets(): ReimbursementOffset[] {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
         const cleaned = filterOutUnwantedOffsets(parsed);
-        const sorted = sortOffsetsByDateDesc(cleaned);
+        const normalized = cleaned.map((item) => {
+          return {
+            ...item,
+            origin: item.origin || (item.offsetType === 'taxi' ? '台經院' : '-'),
+            destination: item.destination || (item.offsetType === 'taxi' ? '外勤公務地點' : '-'),
+          };
+        });
+        const sorted = sortOffsetsByDateDesc(normalized);
         return sorted;
       }
     }

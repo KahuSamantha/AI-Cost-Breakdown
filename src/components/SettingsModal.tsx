@@ -184,24 +184,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </div>
             </div>
-
-            <div>
-              <label className="block text-slate-700 font-bold mb-1">
-                預設美元折算匯率 (USD to TWD)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={profile.defaultExchangeRateUSD}
-                onChange={(e) =>
-                  setProfile({
-                    ...profile,
-                    defaultExchangeRateUSD: parseFloat(e.target.value) || 32.2,
-                  })
-                }
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
-              />
-            </div>
           </div>
 
           {/* Section 3: Backup & Reset */}

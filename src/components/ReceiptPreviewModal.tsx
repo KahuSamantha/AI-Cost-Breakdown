@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, FileText, Download, ExternalLink, Calendar, CreditCard, DollarSign, Image as ImageIcon, ZoomIn, Eye } from 'lucide-react';
 import { ExpenseRecord } from '../types';
-import { formatTWD, formatOriginalCurrency, formatDate } from '../utils/formatters';
+import { formatTWD, formatDate } from '../utils/formatters';
 
 interface ReceiptPreviewModalProps {
   isOpen: boolean;
@@ -53,11 +53,9 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
 請款人員: ${expense.paidByName}
 扣款日期: ${formatDate(expense.paymentDate)}
 支付方式: ${expense.paymentMethod}
-原幣金額: ${formatOriginalCurrency(expense.originalAmount, expense.currency)} (匯率 ${expense.exchangeRate})
-實付台幣: ${formatTWD(expense.amountTWD)}
+實付金額: ${formatTWD(expense.amountTWD)} (新台幣)
 單據號碼: ${expense.invoiceNumber || 'INV-TIER-' + expense.paymentDate.replace(/-/g, '')}
 電子水單名稱: ${expense.receiptName || '線上電子信用卡扣款單據'}
-核銷說明: ${expense.description || '線上信用卡扣款自動請款紀錄'}
 列印日期: ${new Date().toLocaleString('zh-TW')}
 =====================================================`;
 
@@ -111,15 +109,15 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
           {/* Quick Expense Highlights */}
           <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
             <div>
-              <span className="text-slate-500 block">實付台幣</span>
+              <span className="text-slate-500 block">實付金額 (NT$)</span>
               <span className="text-xl font-black text-slate-900 font-mono tabular-nums">
                 {formatTWD(expense.amountTWD)}
               </span>
             </div>
             <div>
-              <span className="text-slate-500 block">原幣金額</span>
+              <span className="text-slate-500 block">單據 / 發票號碼</span>
               <span className="text-sm font-bold text-slate-700 font-mono">
-                {formatOriginalCurrency(expense.originalAmount, expense.currency)} (匯率 {expense.exchangeRate})
+                {expense.invoiceNumber || '無單號'}
               </span>
             </div>
           </div>

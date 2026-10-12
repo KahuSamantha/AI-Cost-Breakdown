@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Upload, FileText, Check, DollarSign, Calculator, Download, Eye, Image as ImageIcon } from 'lucide-react';
-import { ExpenseRecord, Currency, BillingType, ToolCategory, TaxIdStatus, UserProfile } from '../types';
-import { AI_TOOL_PRESETS, CATEGORY_LABELS, BILLING_TYPE_LABELS } from '../data/presets';
-import { calculateExpenseAmounts, formatTWD } from '../utils/formatters';
+import { X, Sparkles, Upload, FileText, Check, Download, Trash2, DollarSign } from 'lucide-react';
+import { ExpenseRecord, BillingType, ToolCategory, TaxIdStatus, UserProfile } from '../types';
+import { AI_TOOL_PRESETS, CATEGORY_LABELS } from '../data/presets';
+import { formatTWD } from '../utils/formatters';
 
 interface ExpenseModalProps {
   isOpen: boolean;
@@ -22,21 +22,14 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const [toolName, setToolName] = useState('');
   const [toolCategory, setToolCategory] = useState<ToolCategory>('chat_assistant');
   const [billingType, setBillingType] = useState<BillingType>('monthly_subscription');
-  const [projectName, setProjectName] = useState('');
   const [department, setDepartment] = useState(userProfile.department);
   const [paidByName, setPaidByName] = useState(userProfile.name);
   const [paymentMethod, setPaymentMethod] = useState(userProfile.defaultPaymentMethod);
   const [accountIdentifier, setAccountIdentifier] = useState('');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
 
-  // Currency & calculation
-  const [currency, setCurrency] = useState<Currency>('USD');
-  const [originalAmount, setOriginalAmount] = useState<number>(20);
-  const [exchangeRate, setExchangeRate] = useState<number>(userProfile.defaultExchangeRateUSD || 32.2);
-  const [hasForeignFee, setHasForeignFee] = useState<boolean>(true);
-  const [foreignFeeRate, setForeignFeeRate] = useState<number>(0.015);
-  const [isCustomAmountTWD, setIsCustomAmountTWD] = useState<boolean>(false);
-  const [customAmountTWD, setCustomAmountTWD] = useState<number>(0);
+  // 金額 (皆以台幣計算)
+  const [amountTWD, setAmountTWD] = useState<number | ''>(660);
 
   // Invoice & Receipt
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -50,40 +43,26 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       setToolName(editingExpense.toolName);
       setToolCategory(editingExpense.toolCategory);
       setBillingType(editingExpense.billingType);
-      setProjectName(editingExpense.projectName || '');
       setDepartment(editingExpense.department || userProfile.department);
       setPaidByName(editingExpense.paidByName);
       setPaymentMethod(editingExpense.paymentMethod);
       setAccountIdentifier(editingExpense.accountIdentifier || '');
       setPaymentDate(editingExpense.paymentDate);
-      setCurrency(editingExpense.currency);
-      setOriginalAmount(editingExpense.originalAmount);
-      setExchangeRate(editingExpense.exchangeRate);
-      setHasForeignFee(editingExpense.hasForeignFee);
-      setForeignFeeRate(editingExpense.foreignFeeRate);
+      setAmountTWD(editingExpense.amountTWD);
       setInvoiceNumber(editingExpense.invoiceNumber || '');
       setTaxIdStatus(editingExpense.taxIdStatus);
       setReceiptUrl(editingExpense.receiptUrl);
       setReceiptName(editingExpense.receiptName);
-      setCustomAmountTWD(editingExpense.amountTWD);
-      setIsCustomAmountTWD(true);
     } else {
       setToolName('');
       setToolCategory('chat_assistant');
       setBillingType('monthly_subscription');
-      setProjectName('品牌計畫');
       setDepartment(userProfile.department);
       setPaidByName(userProfile.name);
       setPaymentMethod(userProfile.defaultPaymentMethod);
       setAccountIdentifier('samantha@tier.org.tw');
       setPaymentDate(new Date().toISOString().slice(0, 10));
-      setCurrency('USD');
-      setOriginalAmount(20);
-      setExchangeRate(userProfile.defaultExchangeRateUSD || 32.2);
-      setHasForeignFee(true);
-      setForeignFeeRate(0.015);
-      setIsCustomAmountTWD(false);
-      setCustomAmountTWD(0);
+      setAmountTWD(660);
       setInvoiceNumber('');
       setTaxIdStatus('personal_receipt');
       setReceiptUrl(undefined);
@@ -93,33 +72,12 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Real-time calculation
-  const calculated = calculateExpenseAmounts(
-    Number(originalAmount) || 0,
-    Number(exchangeRate) || 1,
-    hasForeignFee,
-    Number(foreignFeeRate) || 0.015
-  );
-  const subtotalTWD = calculated.subtotalTWD;
-  const foreignFeeTWD = calculated.foreignFeeTWD;
-  const autoTotalTWD = calculated.amountTWD;
-  const finalAmountTWD = isCustomAmountTWD ? Number(customAmountTWD) || 0 : autoTotalTWD;
-
   // Preset selector handler
   const handleApplyPreset = (preset: typeof AI_TOOL_PRESETS[0]) => {
     setToolName(preset.name);
     setToolCategory(preset.category);
     setBillingType(preset.billingType);
-    setCurrency(preset.defaultCurrency);
-    setOriginalAmount(preset.typicalAmount);
-    if (preset.defaultCurrency === 'TWD') {
-      setHasForeignFee(false);
-      setExchangeRate(1.0);
-    } else {
-      setHasForeignFee(true);
-      setExchangeRate(userProfile.defaultExchangeRateUSD || 32.2);
-    }
-    setIsCustomAmountTWD(false);
+    setAmountTWD(preset.defaultAmountTWD);
   };
 
   // File upload handler
@@ -145,8 +103,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       alert('請輸入 AI 工具名稱');
       return;
     }
-    if (finalAmountTWD <= 0) {
-      alert('實支台幣金額必須大於 0');
+    const finalAmount = Number(amountTWD) || 0;
+    if (finalAmount <= 0) {
+      alert('支出金額 (台幣) 必須大於 0');
       return;
     }
 
@@ -155,21 +114,19 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         toolName: toolName.trim(),
         toolCategory,
         billingType,
-        projectName: projectName.trim(),
         department: department.trim(),
-        description: editingExpense?.description || '',
         paidByName,
         paymentMethod,
         accountIdentifier,
         paymentDate,
-        currency,
-        originalAmount: Number(originalAmount),
-        exchangeRate: Number(exchangeRate),
-        hasForeignFee,
-        foreignFeeRate: Number(foreignFeeRate),
-        subtotalTWD,
-        foreignFeeTWD,
-        amountTWD: finalAmountTWD,
+        amountTWD: Math.round(finalAmount),
+        currency: 'TWD',
+        originalAmount: Math.round(finalAmount),
+        exchangeRate: 1,
+        hasForeignFee: false,
+        foreignFeeRate: 0,
+        foreignFeeTWD: 0,
+        subtotalTWD: Math.round(finalAmount),
         invoiceNumber,
         taxIdStatus,
         receiptUrl,
@@ -182,35 +139,35 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white shadow-2xl my-8 overflow-hidden text-slate-900">
+      <div className="relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white shadow-2xl my-8 overflow-hidden text-slate-900 animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
+        <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 bg-slate-50/80">
           <div>
             <h2 className="text-base font-extrabold text-slate-900">
               {editingExpense ? '編輯 AI 支出紀錄' : '新增 AI 支出紀錄'}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              登記訂閱或 API 扣款，自動換算匯率與海外交易手續費
+              以新台幣 (NT$) 直接計算，免去外幣匯率換算
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200/60 transition-colors cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto text-xs">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[82vh] overflow-y-auto text-xs">
           {/* Quick AI Presets */}
           {!editingExpense && (
-            <div className="space-y-2 pb-2 border-b border-slate-100">
+            <div className="space-y-2 pb-3 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-700 flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
-                  <span>常用 AI 工具快速套用</span>
+                  <span>常用 AI 工具快速套用 (台幣 NT$)</span>
                 </span>
-                <span className="text-slate-400">點擊即自動填入預設金額</span>
+                <span className="text-slate-400 text-[11px]">點選即填入</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {AI_TOOL_PRESETS.slice(0, 8).map((preset) => (
@@ -220,7 +177,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                     onClick={() => handleApplyPreset(preset)}
                     className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 text-slate-700 border border-slate-200 transition-colors cursor-pointer whitespace-nowrap"
                   >
-                    {preset.name.split(' ')[0]} ${preset.typicalAmount}
+                    {preset.name.split(' ')[0]} NT${preset.defaultAmountTWD.toLocaleString()}
                   </button>
                 ))}
               </div>
@@ -228,7 +185,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           )}
 
           {/* Section 1: Tool Basics */}
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="sm:col-span-2">
                 <label className="block text-slate-700 font-bold mb-1">
@@ -240,7 +197,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                   placeholder="例如: OpenAI API, Cursor Pro, Claude Pro..."
                   value={toolName}
                   onChange={(e) => setToolName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium transition-all"
                 />
               </div>
 
@@ -249,7 +206,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 <select
                   value={toolCategory}
                   onChange={(e) => setToolCategory(e.target.value as ToolCategory)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white cursor-pointer font-medium"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white cursor-pointer font-medium"
                 >
                   {Object.entries(CATEGORY_LABELS).map(([k, label]) => (
                     <option key={k} value={k}>
@@ -260,15 +217,40 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
               </div>
             </div>
 
+            {/* Direct Amount (TWD) */}
+            <div className="rounded-2xl bg-indigo-50/60 border border-indigo-100 p-4">
+              <label className="block text-indigo-950 font-black mb-1.5 text-xs flex items-center justify-between">
+                <span>
+                  支出金額 (新台幣 NT$) <span className="text-rose-500">*</span>
+                </span>
+                <span className="text-[11px] text-indigo-600 font-normal">全台幣記帳，無須匯率折算</span>
+              </label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+                  NT$
+                </div>
+                <input
+                  type="number"
+                  step="1"
+                  min="1"
+                  required
+                  placeholder="例如: 660"
+                  value={amountTWD}
+                  onChange={(e) => setAmountTWD(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                  className="w-full bg-white border border-indigo-200 rounded-xl pl-12 pr-4 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-600 font-mono font-black text-lg tabular-nums shadow-xs"
+                />
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-slate-700 font-bold mb-1">扣款日期</label>
+                <label className="block text-slate-700 font-bold mb-1">扣款日期 <span className="text-rose-500">*</span></label>
                 <input
                   type="date"
                   required
                   value={paymentDate}
                   onChange={(e) => setPaymentDate(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
                 />
               </div>
 
@@ -276,149 +258,76 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 <label className="block text-slate-700 font-bold mb-1">付款卡別 / 支付方式</label>
                 <input
                   type="text"
-                  placeholder="例如 國泰 CUBE 卡 (6821)"
+                  placeholder="例如: 國泰 CUBE 卡 (6821)"
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-slate-700 font-bold mb-1">歸屬專案名稱</label>
-                <input
-                  type="text"
-                  placeholder="例如: 企業級 AI 知識庫與研發專案"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
-                />
-              </div>
-
-              <div>
                 <label className="block text-slate-700 font-bold mb-1">代墊人員</label>
                 <input
                   type="text"
                   value={paidByName}
                   onChange={(e) => setPaidByName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">服務帳號 / Email</label>
+                <input
+                  type="text"
+                  placeholder="samantha@tier.org.tw"
+                  value={accountIdentifier}
+                  onChange={(e) => setAccountIdentifier(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
                 />
               </div>
             </div>
           </div>
 
-          {/* Section 2: Amounts & Calculation */}
+          {/* Section 2: Invoice & Receipt */}
           <div className="space-y-3 pt-3 border-t border-slate-100">
             <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-              幣別、匯率與金額計算
+              發票與憑證上傳 (選填)
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-slate-700 font-bold mb-1">原幣幣別</label>
+                <label className="block text-slate-700 font-bold mb-1">發票 / 訂單收據號碼</label>
+                <input
+                  type="text"
+                  placeholder="例如: INV-CLAUDE-0915"
+                  value={invoiceNumber}
+                  onChange={(e) => setInvoiceNumber(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-mono font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">憑證格式 / 統編註記</label>
                 <select
-                  value={currency}
-                  onChange={(e) => {
-                    const c = e.target.value as Currency;
-                    setCurrency(c);
-                    if (c === 'TWD') {
-                      setExchangeRate(1.0);
-                      setHasForeignFee(false);
-                    } else if (c === 'USD') {
-                      setExchangeRate(userProfile.defaultExchangeRateUSD || 32.2);
-                      setHasForeignFee(true);
-                    }
-                  }}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium cursor-pointer"
+                  value={taxIdStatus}
+                  onChange={(e) => setTaxIdStatus(e.target.value as TaxIdStatus)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white cursor-pointer font-medium"
                 >
-                  <option value="USD">USD (美元)</option>
-                  <option value="TWD">TWD (新台幣)</option>
-                  <option value="EUR">EUR (歐元)</option>
-                  <option value="JPY">JPY (日圓)</option>
-                  <option value="GBP">GBP (英鎊)</option>
+                  <option value="personal_receipt">個人電子收據 / 海外水單</option>
+                  <option value="with_tax_id">具公司統一編號發票</option>
+                  <option value="no_tax_id">一般免用統一發票收據</option>
                 </select>
               </div>
-
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">
-                  原幣扣款金額 <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  required
-                  value={originalAmount}
-                  onChange={(e) => {
-                    setOriginalAmount(parseFloat(e.target.value) || 0);
-                    setIsCustomAmountTWD(false);
-                  }}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-mono font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">折算匯率</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  disabled={currency === 'TWD'}
-                  value={exchangeRate}
-                  onChange={(e) => {
-                    setExchangeRate(parseFloat(e.target.value) || 1);
-                    setIsCustomAmountTWD(false);
-                  }}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-mono disabled:opacity-50"
-                />
-              </div>
             </div>
 
-            {/* Foreign transaction fee checkbox */}
-            {currency !== 'TWD' && (
-              <div className="flex items-center gap-2 pt-1 text-slate-700">
-                <input
-                  type="checkbox"
-                  id="foreignFee"
-                  checked={hasForeignFee}
-                  onChange={(e) => {
-                    setHasForeignFee(e.target.checked);
-                    setIsCustomAmountTWD(false);
-                  }}
-                  className="h-4 w-4 rounded text-indigo-600 cursor-pointer"
-                />
-                <label htmlFor="foreignFee" className="cursor-pointer font-medium">
-                  加計信用卡海外交易手續費 1.5% (+ NT$ {foreignFeeTWD})
-                </label>
-              </div>
-            )}
-
-            {/* Calculation summary block */}
-            <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex items-center justify-between">
-              <div>
-                <span className="text-slate-600 block">實付台幣試算總額</span>
-                <span className="text-xs text-slate-500 font-mono">
-                  本金 {originalAmount} {currency} × {exchangeRate}
-                  {hasForeignFee && ` + 手續費 ${foreignFeeTWD} 元`}
-                </span>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-black font-mono text-indigo-950 tabular-nums">
-                  {formatTWD(finalAmountTWD)}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Receipt upload */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-              發票與憑證檔案 (選填)
-            </h3>
-            <div className="flex flex-col gap-2.5">
+            {/* Receipt upload */}
+            <div className="space-y-2.5 pt-1">
               <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 rounded-xl hover:bg-slate-200 transition-colors cursor-pointer">
+                <label className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 rounded-xl hover:bg-slate-200 transition-colors cursor-pointer shadow-xs">
                   <Upload className="h-3.5 w-3.5 text-indigo-600" />
-                  <span>{receiptName ? '重新上傳憑證檔案' : '上傳水單/收據檔案'}</span>
+                  <span>{receiptName ? '重新上傳憑證' : '上傳憑證水單 (圖片/PDF)'}</span>
                   <input
                     type="file"
                     accept="image/*,.pdf"
@@ -436,7 +345,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                         setReceiptUrl(undefined);
                         setReceiptName(undefined);
                       }}
-                      className="ml-1 text-slate-400 hover:text-rose-500 font-bold p-0.5"
+                      className="ml-1 text-slate-400 hover:text-rose-500 font-bold p-0.5 cursor-pointer"
                       title="移除檔案"
                     >
                       ✕
@@ -445,7 +354,6 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 )}
               </div>
 
-              {/* Instant in-modal preview thumbnail if file selected */}
               {receiptUrl && (
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -453,16 +361,16 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                       <img
                         src={receiptUrl}
                         alt="Preview"
-                        className="h-14 w-14 object-cover rounded-lg border border-slate-200 bg-white"
+                        className="h-12 w-12 object-cover rounded-lg border border-slate-200 bg-white"
                       />
                     ) : (
-                      <div className="h-14 w-14 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
-                        <FileText className="h-7 w-7" />
+                      <div className="h-12 w-12 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                        <FileText className="h-6 w-6" />
                       </div>
                     )}
                     <div>
                       <div className="text-xs font-bold text-slate-800 line-clamp-1">{receiptName || '憑證附件'}</div>
-                      <div className="text-[11px] text-emerald-600 font-medium">✓ 已上傳就緒，送出後即可在明細中預覽與下載</div>
+                      <div className="text-[11px] text-emerald-600 font-medium">✓ 已上傳就緒</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
@@ -476,7 +384,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                         link.click();
                         document.body.removeChild(link);
                       }}
-                      className="px-2.5 py-1 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors inline-flex items-center gap-1"
+                      className="px-2.5 py-1 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors inline-flex items-center gap-1 cursor-pointer"
                     >
                       <Download className="h-3 w-3" />
                       下載
@@ -492,13 +400,13 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
             >
               取消
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-fuchsia-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 rounded-xl transition-all cursor-pointer shadow-md"
+              className="px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all cursor-pointer shadow-xs"
             >
               {editingExpense ? '儲存變更' : '確認登記支出'}
             </button>
