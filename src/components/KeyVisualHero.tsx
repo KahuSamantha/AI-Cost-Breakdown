@@ -1,15 +1,9 @@
 import React from 'react';
 import { 
-  Sparkles, 
   Plus, 
   ArrowRight, 
   Car, 
-  Receipt, 
-  TrendingUp, 
-  FileCheck2,
-  CheckCircle2,
-  MapPin,
-  Coins
+  TrendingUp 
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { formatTWD } from '../utils/formatters';
@@ -86,10 +80,6 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
                 </span>
                 <span>{userProfile.companyName} · 品牌計畫</span>
               </div>
-              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-xs font-medium text-indigo-300">
-                <Coins className="h-3.5 w-3.5 text-amber-300" />
-                <span>全台幣 (NT$) 直接結算</span>
-              </div>
             </div>
 
             {/* Main Key Visual Headline */}
@@ -97,25 +87,6 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
               <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white leading-tight">
                 品牌計畫 AI 工具費用核銷系統
               </h1>
-              <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl font-normal">
-                統一以新台幣 (NT$) 精確結算，免除外幣匯率換算與手續費分攤；無縫整合外勤計程車資「起始地點 → 到達地點」即時抵充，並提供收據憑證備查與一鍵請款單列印。
-              </p>
-            </div>
-
-            {/* Quick Feature Pills */}
-            <div className="flex flex-wrap gap-2 pt-1 text-xs text-slate-300">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                免換匯 · 台幣即時計算
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10">
-                <MapPin className="h-3.5 w-3.5 text-pink-400" />
-                起始/到達地點清晰表記
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10">
-                <FileCheck2 className="h-3.5 w-3.5 text-sky-400" />
-                收據憑證在線預覽與下載
-              </span>
             </div>
 
             {/* Action CTA Buttons */}
