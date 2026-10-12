@@ -213,10 +213,14 @@ export default function App() {
     expenses: ExpenseRecord[];
     batches: ReimbursementBatch[];
     profile: UserProfile;
+    offsets?: ReimbursementOffset[];
   }) => {
     updateExpenses(data.expenses);
     updateBatches(data.batches);
     updateProfile(data.profile);
+    if (data.offsets && data.offsets.length > 0) {
+      updateOffsets(data.offsets);
+    }
   };
 
   const totalOffsetsAmount = offsets.reduce((sum, o) => sum + o.amountTWD, 0);
@@ -344,6 +348,7 @@ export default function App() {
         onSaveProfile={updateProfile}
         expenses={expenses}
         batches={batches}
+        offsets={offsets}
         onImportAllData={handleImportAllData}
         onResetData={handleResetData}
       />

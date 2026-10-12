@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Save, Download, Upload, RefreshCw, User, Building, Landmark, Check } from 'lucide-react';
-import { UserProfile, ExpenseRecord, ReimbursementBatch } from '../types';
+import { UserProfile, ExpenseRecord, ReimbursementBatch, ReimbursementOffset } from '../types';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -9,7 +9,13 @@ interface SettingsModalProps {
   onSaveProfile: (profile: UserProfile) => void;
   expenses: ExpenseRecord[];
   batches: ReimbursementBatch[];
-  onImportAllData: (data: { expenses: ExpenseRecord[]; batches: ReimbursementBatch[]; profile: UserProfile }) => void;
+  offsets: ReimbursementOffset[];
+  onImportAllData: (data: {
+    expenses: ExpenseRecord[];
+    batches: ReimbursementBatch[];
+    profile: UserProfile;
+    offsets?: ReimbursementOffset[];
+  }) => void;
   onResetData: () => void;
 }
 
@@ -20,6 +26,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSaveProfile,
   expenses,
   batches,
+  offsets,
   onImportAllData,
   onResetData,
 }) => {
@@ -41,11 +48,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   // Export JSON backup
   const handleExportJSON = () => {
     const backup = {
-      version: '2.0',
+      version: '2.1',
       exportDate: new Date().toISOString(),
       profile,
       expenses,
       batches,
+      offsets,
     };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -70,6 +78,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             expenses: parsed.expenses,
             batches: parsed.batches || [],
             profile: parsed.profile,
+            offsets: parsed.offsets || [],
           });
           alert('資料備份已成功還原！');
           onClose();
