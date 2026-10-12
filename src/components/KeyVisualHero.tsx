@@ -33,7 +33,7 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
     : 0;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl key-visual-banner border border-indigo-500/30 text-white shadow-xl shadow-indigo-950/20 mb-8">
+    <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl key-visual-banner border border-indigo-500/30 text-white shadow-xl shadow-indigo-950/20 mb-4 sm:mb-8">
       {/* Decorative SVG Geometric Mesh / Tech Grid Background */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -66,11 +66,11 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
       <div className="absolute -bottom-20 left-1/3 w-72 h-72 bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Main Content Layout */}
-      <div className="relative z-10 px-6 py-8 sm:px-10 sm:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <div className="relative z-10 p-4 sm:p-7 lg:p-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-center">
           
           {/* Left Column: Branding, Title, and Description */}
-          <div className="lg:col-span-7 space-y-4">
+          <div className="lg:col-span-7 space-y-3 sm:space-y-4">
             {/* Top Brand Tag with glowing dot */}
             <div className="flex flex-wrap items-center gap-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-indigo-200">
@@ -84,26 +84,26 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
 
             {/* Main Key Visual Headline */}
             <div>
-              <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+              <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">
                 品牌計畫 AI 工具費用核銷系統
               </h1>
             </div>
 
             {/* Action CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1 sm:pt-2">
               <button
                 onClick={onOpenNewExpense}
-                className="flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-white hover:bg-indigo-50 rounded-xl transition-all cursor-pointer shadow-lg shadow-white/10 hover:shadow-white/20 active:scale-98"
+                className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-white hover:bg-indigo-50 rounded-xl transition-all cursor-pointer shadow-lg shadow-white/10 hover:shadow-white/20 active:scale-98"
               >
-                <Plus className="h-4 w-4 text-indigo-600" />
+                <Plus className="h-4 w-4 text-indigo-600 shrink-0" />
                 <span>記一筆 AI 支出</span>
               </button>
 
               <button
                 onClick={onOpenNewOffset}
-                className="flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold text-pink-200 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/40 rounded-xl transition-all cursor-pointer backdrop-blur-md active:scale-98"
+                className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold text-pink-200 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/40 rounded-xl transition-all cursor-pointer backdrop-blur-md active:scale-98"
               >
-                <Car className="h-4 w-4 text-pink-400" />
+                <Car className="h-4 w-4 text-pink-400 shrink-0" />
                 <span>新增車資核銷紀錄</span>
               </button>
             </div>
@@ -111,11 +111,11 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
 
           {/* Right Column: Key Visual Interactive Stats Badge */}
           <div className="lg:col-span-5">
-            <div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-5 sm:p-6 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-white/15 pb-3">
+            <div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-4 sm:p-5 lg:p-6 shadow-2xl space-y-3.5">
+              <div className="flex items-center justify-between border-b border-white/15 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-indigo-500/30 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
-                    <TrendingUp className="h-4 w-4" />
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-indigo-500/30 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
+                    <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
                   <div>
                     <div className="text-xs font-semibold text-slate-300">當前核銷動態</div>
@@ -123,7 +123,7 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-bold text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-full border border-indigo-400/30">
+                  <span className="text-[11px] sm:text-xs font-bold text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-full border border-indigo-400/30">
                     抵充達成率 {offsetPercentage}%
                   </span>
                 </div>
@@ -143,18 +143,18 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
                 </div>
               </div>
 
-              {/* 3 Metric Cards inside the visual banner */}
-              <div className="grid grid-cols-2 gap-2.5 pt-1">
+              {/* 2 Metric Cards inside the visual banner */}
+              <div className="grid grid-cols-2 gap-2 pt-0.5">
                 {/* AI 累計支出 */}
                 <button
                   onClick={onNavigateToExpenses}
-                  className="text-left rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 p-3 transition-colors cursor-pointer group"
+                  className="text-left rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 p-2.5 sm:p-3 transition-colors cursor-pointer group"
                 >
-                  <div className="text-[11px] text-indigo-200 flex items-center justify-between">
+                  <div className="text-[10px] sm:text-[11px] text-indigo-200 flex items-center justify-between">
                     <span>AI 累計支出</span>
                     <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="text-base sm:text-lg font-black text-white font-mono mt-0.5">
+                  <div className="text-sm sm:text-base lg:text-lg font-black text-white font-mono mt-0.5 truncate">
                     {formatTWD(totalExpensesAmount)}
                   </div>
                 </button>
@@ -162,26 +162,26 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
                 {/* 累計已抵充 */}
                 <button
                   onClick={onNavigateToOffsets}
-                  className="text-left rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 p-3 transition-colors cursor-pointer group"
+                  className="text-left rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 p-2.5 sm:p-3 transition-colors cursor-pointer group"
                 >
-                  <div className="text-[11px] text-pink-200 flex items-center justify-between">
+                  <div className="text-[10px] sm:text-[11px] text-pink-200 flex items-center justify-between">
                     <span>累計已抵充車資</span>
                     <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="text-base sm:text-lg font-black text-pink-300 font-mono mt-0.5">
+                  <div className="text-sm sm:text-base lg:text-lg font-black text-pink-300 font-mono mt-0.5 truncate">
                     {formatTWD(totalOffsetsAmount)}
                   </div>
                 </button>
               </div>
 
               {/* Net Balance Callout */}
-              <div className="rounded-xl bg-emerald-500/15 border border-emerald-400/30 p-3 flex items-center justify-between">
+              <div className="rounded-xl bg-emerald-500/15 border border-emerald-400/30 p-2.5 sm:p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                 <div>
-                  <div className="text-[11px] font-medium text-emerald-200">待請款淨額 (未抵充餘額)</div>
-                  <div className="text-xs text-slate-300">可一鍵產出請款報表供會計核銷</div>
+                  <div className="text-[10px] sm:text-[11px] font-medium text-emerald-200">待請款淨額 (未抵充餘額)</div>
+                  <div className="text-[10px] sm:text-xs text-slate-300 hidden sm:block">可一鍵產出請款報表供會計核銷</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-lg font-black text-emerald-300 font-mono">
+                <div className="text-left sm:text-right">
+                  <div className="text-base sm:text-lg font-black text-emerald-300 font-mono">
                     {formatTWD(netRemaining)}
                   </div>
                 </div>

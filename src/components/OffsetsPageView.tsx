@@ -228,7 +228,7 @@ export const OffsetsPageView: React.FC<OffsetsPageViewProps> = ({
   };
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-sm p-6 sm:p-8 shadow-sm text-slate-900 space-y-7">
+    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-sm p-3.5 sm:p-6 lg:p-8 shadow-sm text-slate-900 space-y-5 sm:space-y-7">
       {/* 區塊 1: 頂部標題與主要按鈕 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
         <div>
