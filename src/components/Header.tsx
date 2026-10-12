@@ -20,7 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
   totalExpensesAmount = 9613,
 }) => {
   return (
-    <header className="no-print sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs">
+    <header className="no-print sticky top-0 z-30 border-b border-indigo-100/80 bg-white/85 backdrop-blur-xl shadow-xs">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand wordmark */}
         <div className="flex items-center gap-3">

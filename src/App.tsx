@@ -223,7 +223,12 @@ export default function App() {
   const totalExpensesAmount = expenses.reduce((sum, e) => sum + e.amountTWD, 0);
 
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-800 flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50/80 bg-mesh-ambient text-slate-800 flex flex-col antialiased selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
+      {/* 全域主視覺科技網格與環境氛圍光 (Key Visual Ambient Grid & Glow) */}
+      <div className="fixed inset-0 bg-grid-tech pointer-events-none opacity-40 z-0" />
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none z-0" />
+      <div className="fixed top-20 right-1/4 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl pointer-events-none z-0" />
+
       {/* Top Bar Header */}
       <Header
         currentTab={currentTab}
@@ -235,7 +240,7 @@ export default function App() {
       />
 
       {/* Main Workspace Container */}
-      <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="relative z-10 flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {currentTab === 'dashboard' && (
           <DashboardView
             expenses={expenses}
@@ -344,7 +349,7 @@ export default function App() {
       />
 
       {/* Clean Light Footer */}
-      <footer className="no-print border-t border-slate-200/80 bg-white py-4 text-center text-xs text-slate-500">
+      <footer className="relative z-10 no-print border-t border-slate-200/80 bg-white/80 backdrop-blur-md py-4 text-center text-xs text-slate-500">
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
             <span className="font-bold text-slate-700">台灣經濟研究院 · 品牌計畫</span>

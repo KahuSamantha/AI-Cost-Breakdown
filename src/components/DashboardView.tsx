@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { ExpenseRecord, ReimbursementOffset, UserProfile } from '../types';
 import { formatTWD, formatDate } from '../utils/formatters';
+import { KeyVisualHero } from './KeyVisualHero';
 
 interface DashboardViewProps {
   expenses: ExpenseRecord[];
@@ -57,46 +58,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const netRemainingTWD = Math.max(0, totalExpenseTWD - totalOffsetTWD);
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-xs text-slate-900 space-y-7">
-      {/* 區塊 1: 頂部標題與核心操作按鈕 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
-        <div>
-          <div className="text-xs text-slate-500 font-medium">
-            <span className="font-bold text-slate-700">{userProfile.companyName}</span>
-            <span className="mx-1.5">·</span>
-            <span>{userProfile.department}</span>
-            <span className="mx-1.5">·</span>
-            <span>申請人: {userProfile.name}</span>
-          </div>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-            品牌計畫 AI工具費用核銷總覽
-          </h1>
-          <p className="mt-1 text-xs text-slate-500 font-medium">
-            以新台幣 (NT$) 統一計費核算，隨時掌握外勤車資抵充進度與待請款餘額
-          </p>
-        </div>
+    <div className="space-y-6">
+      {/* 頂部主視覺背景看板 (Key Visual Hero Banner) */}
+      <KeyVisualHero
+        userProfile={userProfile}
+        totalExpensesAmount={totalExpenseTWD}
+        totalOffsetsAmount={totalOffsetTWD}
+        onOpenNewExpense={onOpenNewExpense}
+        onOpenNewOffset={onOpenNewOffset || onNavigateToOffsets}
+        onNavigateToExpenses={onNavigateToExpenses}
+        onNavigateToOffsets={onNavigateToOffsets}
+      />
 
-        {/* 核心操作按鈕 */}
-        <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
-          <button
-            onClick={onOpenNewExpense}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all cursor-pointer shadow-xs"
-          >
-            <Plus className="h-4 w-4" />
-            <span>記一筆 AI 支出</span>
-          </button>
-          <button
-            onClick={onOpenNewOffset || onNavigateToOffsets}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-pink-700 bg-pink-50 hover:bg-pink-100 border border-pink-200 rounded-xl transition-colors cursor-pointer shadow-xs"
-          >
-            <Plus className="h-4 w-4 text-pink-600" />
-            <span>新增核銷紀錄</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 區塊 2: 三大核心數據卡片 (全台幣，視覺質感提升) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* 核心數據與最新明細卡片容器 */}
+      <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-sm p-6 sm:p-8 shadow-sm text-slate-900 space-y-7">
+        {/* 區塊 1: 三大核心數據卡片 (全台幣，視覺質感提升) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: AI 累計總支出 */}
         <div 
           onClick={onNavigateToExpenses}
@@ -290,6 +267,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };
