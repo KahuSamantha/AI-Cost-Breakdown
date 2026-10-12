@@ -14,6 +14,7 @@ import {
   getStoredOffsets,
   saveStoredOffsets,
   resetAllDataToDefault,
+  clearAllDataToEmpty,
   sortOffsetsByDateDesc,
   sortExpensesByDateDesc
 } from './utils/storage';
@@ -209,6 +210,13 @@ export default function App() {
     setOffsets(getStoredOffsets());
   };
 
+  const handleClearAllToEmpty = () => {
+    clearAllDataToEmpty();
+    setExpenses([]);
+    setBatches([]);
+    setOffsets([]);
+  };
+
   const handleImportAllData = (data: {
     expenses: ExpenseRecord[];
     batches: ReimbursementBatch[];
@@ -351,6 +359,7 @@ export default function App() {
         offsets={offsets}
         onImportAllData={handleImportAllData}
         onResetData={handleResetData}
+        onClearAllEmpty={handleClearAllToEmpty}
       />
 
       {/* Clean Light Footer */}

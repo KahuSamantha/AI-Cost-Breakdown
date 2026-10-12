@@ -351,9 +351,9 @@ export function filterOutUnwantedOffsets(list: ReimbursementOffset[]): Reimburse
 export function getStoredExpenses(): ExpenseRecord[] {
   try {
     const raw = localStorage.getItem(EXPENSES_STORAGE_KEY);
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return sortExpensesByDateDesc(parsed);
       }
     }
@@ -428,9 +428,9 @@ export function saveStoredProfile(profile: UserProfile): void {
 export function getStoredOffsets(): ReimbursementOffset[] {
   try {
     const raw = localStorage.getItem(OFFSETS_STORAGE_KEY);
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         const cleaned = filterOutUnwantedOffsets(parsed);
         const normalized = cleaned.map((item) => {
           return {
@@ -554,4 +554,10 @@ export function resetAllDataToDefault(): void {
   localStorage.setItem(BATCHES_STORAGE_KEY, JSON.stringify(INITIAL_BATCHES));
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(DEFAULT_USER_PROFILE));
   localStorage.setItem(OFFSETS_STORAGE_KEY, JSON.stringify(sortedOffsets));
+}
+
+export function clearAllDataToEmpty(): void {
+  localStorage.setItem(EXPENSES_STORAGE_KEY, JSON.stringify([]));
+  localStorage.setItem(BATCHES_STORAGE_KEY, JSON.stringify([]));
+  localStorage.setItem(OFFSETS_STORAGE_KEY, JSON.stringify([]));
 }
