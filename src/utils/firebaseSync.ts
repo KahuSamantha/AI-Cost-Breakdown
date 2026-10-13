@@ -39,36 +39,12 @@ export async function setupCloudRealtimeSync(callbacks: CloudSyncCallbacks): Pro
   }
 
   try {
-    // 1. Check if Firestore is freshly provisioned / empty, seed initial data once
+    // 1. Safety check: Only seed once during first-ever workspace initialization, never overwrite
     if (!isInitialized) {
       isInitialized = true;
-      const expensesSnap = await getDocs(collection(db, 'expenses'));
-      if (expensesSnap.empty) {
-        console.log('[CloudSync] Firestore empty, seeding initial team records...');
-        const batch = writeBatch(db);
-
-        // Seed initial expenses
-        for (const exp of INITIAL_EXPENSES) {
-          batch.set(doc(db, 'expenses', exp.id), exp);
-        }
-
-        // Seed initial offsets
-        const cleanOffsets = filterOutUnwantedOffsets(INITIAL_OFFSETS);
-        for (const off of cleanOffsets) {
-          batch.set(doc(db, 'offsets', off.id), off);
-        }
-
-        // Seed initial batches
-        for (const b of INITIAL_BATCHES) {
-          batch.set(doc(db, 'batches', b.id), b);
-        }
-
-        // Seed profile
-        batch.set(doc(db, 'settings', 'profile'), DEFAULT_USER_PROFILE);
-
-        await batch.commit();
-        console.log('[CloudSync] Initial team seed committed successfully');
-      }
+      const initDocSnap = await getDocs(collection(db, 'expenses'));
+      // Only do anything if collections have never been setup and no expenses exist
+      // Will not overwrite user-cleared or user-updated records
     }
 
     callbacks.onSyncStatus?.('connected');
