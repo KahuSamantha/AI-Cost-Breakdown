@@ -11,13 +11,22 @@ import {
   saveStoredBatches, 
   getStoredProfile, 
   saveStoredProfile,
-  getStoredOffsets,
+  getStoredOffsets, 
   saveStoredOffsets,
   resetAllDataToDefault,
   clearAllDataToEmpty,
   sortOffsetsByDateDesc,
   sortExpensesByDateDesc
 } from './utils/storage';
+import { 
+  setupCloudRealtimeSync, 
+  syncSaveExpense, 
+  syncDeleteExpense, 
+  syncSaveOffset, 
+  syncDeleteOffset, 
+  syncSaveBatch, 
+  syncSaveProfile 
+} from './utils/firebaseSync';
 import { ExpenseRecord, ReimbursementBatch, UserProfile, ReimbursementOffset } from './types';
 import { Header } from './components/Header';
 import { DashboardView } from './components/DashboardView';
@@ -35,6 +44,7 @@ export default function App() {
   const [batches, setBatches] = useState<ReimbursementBatch[]>([]);
   const [offsets, setOffsets] = useState<ReimbursementOffset[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile>(getStoredProfile());
+  const [syncStatus, setSyncStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
 
   // Modals state
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
@@ -45,15 +55,46 @@ export default function App() {
   const [selectedReceiptExpense, setSelectedReceiptExpense] = useState<ExpenseRecord | null>(null);
   const [selectedPrintBatch, setSelectedPrintBatch] = useState<ReimbursementBatch | null>(null);
 
-  // Initialize data on mount
+  // Initialize data on mount & subscribe to Firestore cloud sync
   useEffect(() => {
+    // 1. Initial local cache load for instant UI paint
     setExpenses(getStoredExpenses());
     setBatches(getStoredBatches());
     setOffsets(getStoredOffsets());
     setUserProfile(getStoredProfile());
+
+    // 2. Setup real-time cloud collaboration with Firestore
+    let unsub: (() => void) | undefined;
+    setupCloudRealtimeSync({
+      onExpenses: (cloudExpenses) => {
+        setExpenses(cloudExpenses);
+        saveStoredExpenses(cloudExpenses);
+      },
+      onOffsets: (cloudOffsets) => {
+        setOffsets(cloudOffsets);
+        saveStoredOffsets(cloudOffsets);
+      },
+      onBatches: (cloudBatches) => {
+        setBatches(cloudBatches);
+        saveStoredBatches(cloudBatches);
+      },
+      onProfile: (cloudProfile) => {
+        setUserProfile(cloudProfile);
+        saveStoredProfile(cloudProfile);
+      },
+      onSyncStatus: (status) => {
+        setSyncStatus(status);
+      },
+    }).then((unsubFn) => {
+      unsub = unsubFn;
+    });
+
+    return () => {
+      if (unsub) unsub();
+    };
   }, []);
 
-  // Save changes
+  // Save changes to local cache and state
   const updateExpenses = (newExpenses: ExpenseRecord[]) => {
     const sorted = sortExpensesByDateDesc(newExpenses);
     setExpenses(sorted);
@@ -78,6 +119,7 @@ export default function App() {
       createdAt: new Date().toISOString(),
     };
     updateOffsets([newOffset, ...offsets]);
+    syncSaveOffset(newOffset);
   };
 
   const handleSaveOffset = (
@@ -85,9 +127,17 @@ export default function App() {
     editId?: string
   ) => {
     if (editId) {
+      const target = offsets.find((o) => o.id === editId);
+      const updatedItem: ReimbursementOffset = {
+        ...(target || {}),
+        ...offsetData,
+        id: editId,
+        createdAt: target?.createdAt || new Date().toISOString(),
+      } as ReimbursementOffset;
       updateOffsets(
-        offsets.map((o) => (o.id === editId ? { ...o, ...offsetData } : o))
+        offsets.map((o) => (o.id === editId ? updatedItem : o))
       );
+      syncSaveOffset(updatedItem);
     } else {
       handleAddOffset(offsetData);
     }
@@ -105,15 +155,22 @@ export default function App() {
 
   const handleDeleteOffset = (id: string) => {
     updateOffsets(offsets.filter((o) => o.id !== id));
+    syncDeleteOffset(id);
   };
 
   const handleUpdateOffsetStatus = (id: string, status: 'claimed' | 'reimbursed') => {
-    updateOffsets(offsets.map((o) => (o.id === id ? { ...o, status } : o)));
+    const target = offsets.find((o) => o.id === id);
+    if (target) {
+      const updated: ReimbursementOffset = { ...target, status };
+      updateOffsets(offsets.map((o) => (o.id === id ? updated : o)));
+      syncSaveOffset(updated);
+    }
   };
 
   const updateProfile = (newProfile: UserProfile) => {
     setUserProfile(newProfile);
     saveStoredProfile(newProfile);
+    syncSaveProfile(newProfile);
   };
 
   // Add or edit expense
@@ -123,10 +180,19 @@ export default function App() {
   ) => {
     const now = new Date().toISOString();
     if (editId) {
+      const target = expenses.find((item) => item.id === editId);
+      const updatedItem: ExpenseRecord = {
+        ...(target || {}),
+        ...data,
+        id: editId,
+        createdAt: target?.createdAt || now,
+        updatedAt: now,
+      } as ExpenseRecord;
       const updated = expenses.map((item) =>
-        item.id === editId ? { ...item, ...data, updatedAt: now } : item
+        item.id === editId ? updatedItem : item
       );
       updateExpenses(updated);
+      syncSaveExpense(updatedItem);
     } else {
       const newRecord: ExpenseRecord = {
         ...data,
@@ -135,6 +201,7 @@ export default function App() {
         updatedAt: now,
       };
       updateExpenses([newRecord, ...expenses]);
+      syncSaveExpense(newRecord);
     }
     setIsExpenseModalOpen(false);
     setEditingExpense(null);
@@ -144,18 +211,21 @@ export default function App() {
   const handleDeleteExpense = (id: string) => {
     const updated = expenses.filter((e) => e.id !== id);
     updateExpenses(updated);
+    syncDeleteExpense(id);
   };
 
   // Batch delete expenses
   const handleBatchDeleteExpenses = (ids: string[]) => {
     const updated = expenses.filter((e) => !ids.includes(e.id));
     updateExpenses(updated);
+    ids.forEach((id) => syncDeleteExpense(id));
   };
 
   // Batch delete offsets
   const handleBatchDeleteOffsets = (ids: string[]) => {
     const updated = offsets.filter((o) => !ids.includes(o.id));
     updateOffsets(updated);
+    ids.forEach((id) => syncDeleteOffset(id));
   };
 
   // Batch create formal claim
@@ -185,15 +255,18 @@ export default function App() {
     };
 
     updateBatches([newBatch, ...batches]);
+    syncSaveBatch(newBatch);
 
     const updatedExpenses = expenses.map((e) => {
       if (selectedIds.includes(e.id)) {
-        return {
+        const updated = {
           ...e,
           batchId: batchNo,
           submittedDate: dateObj.toISOString().slice(0, 10),
           updatedAt: dateObj.toISOString(),
         };
+        syncSaveExpense(updated);
+        return updated;
       }
       return e;
     });
@@ -249,6 +322,7 @@ export default function App() {
         userProfile={userProfile}
         offsetsTotal={totalOffsetsAmount}
         totalExpensesAmount={totalExpensesAmount}
+        syncStatus={syncStatus}
       />
 
       {/* Main Workspace Container */}

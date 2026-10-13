@@ -1,0 +1,263 @@
+{
+  "entities": {
+    "Expense": {
+      "title": "Expense",
+      "description": "Team AI expense subscription and usage records",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique expense record identifier"
+        },
+        "toolName": {
+          "type": "string",
+          "description": "AI tool or service name"
+        },
+        "toolCategory": {
+          "type": "string",
+          "description": "Category of the tool"
+        },
+        "billingType": {
+          "type": "string",
+          "description": "Billing cycle type"
+        },
+        "department": {
+          "type": "string",
+          "description": "Requesting department"
+        },
+        "paidByName": {
+          "type": "string",
+          "description": "Person who paid for the expense"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Card or method used for payment"
+        },
+        "accountIdentifier": {
+          "type": "string",
+          "description": "Service account or email"
+        },
+        "paymentDate": {
+          "type": "string",
+          "description": "Payment date YYYY-MM-DD"
+        },
+        "amountTWD": {
+          "type": "number",
+          "description": "Total amount in New Taiwan Dollars (TWD)"
+        },
+        "invoiceNumber": {
+          "type": "string",
+          "description": "Invoice or receipt number"
+        },
+        "taxIdStatus": {
+          "type": "string",
+          "description": "Status of tax ID / uniform invoice number"
+        },
+        "reimbursementStatus": {
+          "type": "string",
+          "description": "Reimbursement approval status"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp ISO string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp ISO string"
+        }
+      },
+      "required": [
+        "id",
+        "toolName",
+        "toolCategory",
+        "billingType",
+        "department",
+        "paidByName",
+        "paymentMethod",
+        "accountIdentifier",
+        "paymentDate",
+        "amountTWD",
+        "invoiceNumber",
+        "taxIdStatus",
+        "reimbursementStatus",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Offset": {
+      "title": "Offset",
+      "description": "Reimbursement offset item such as taxi receipts or direct claims",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique offset identifier"
+        },
+        "date": {
+          "type": "string",
+          "description": "Offset date YYYY-MM-DD"
+        },
+        "title": {
+          "type": "string",
+          "description": "Offset title or description"
+        },
+        "offsetType": {
+          "type": "string",
+          "description": "Offset classification type"
+        },
+        "amountTWD": {
+          "type": "number",
+          "description": "Offset amount in TWD"
+        },
+        "origin": {
+          "type": "string",
+          "description": "Origin location"
+        },
+        "destination": {
+          "type": "string",
+          "description": "Destination location"
+        },
+        "status": {
+          "type": "string",
+          "description": "Offset status claimed or reimbursed"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp ISO string"
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "title",
+        "offsetType",
+        "amountTWD",
+        "origin",
+        "destination",
+        "status",
+        "createdAt"
+      ]
+    },
+    "Batch": {
+      "title": "Batch",
+      "description": "Reimbursement batch application summary",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique batch identifier"
+        },
+        "batchNumber": {
+          "type": "string",
+          "description": "Batch number"
+        },
+        "title": {
+          "type": "string",
+          "description": "Batch subject"
+        },
+        "applicantName": {
+          "type": "string",
+          "description": "Applicant name"
+        },
+        "applicantDepartment": {
+          "type": "string",
+          "description": "Applicant department"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Company name"
+        },
+        "companyTaxId": {
+          "type": "string",
+          "description": "Company unified business number"
+        },
+        "totalAmountTWD": {
+          "type": "number",
+          "description": "Total batch amount in TWD"
+        },
+        "status": {
+          "type": "string",
+          "description": "Batch status"
+        },
+        "submissionDate": {
+          "type": "string",
+          "description": "Submission date YYYY-MM-DD"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp ISO string"
+        }
+      },
+      "required": [
+        "id",
+        "batchNumber",
+        "title",
+        "applicantName",
+        "applicantDepartment",
+        "companyName",
+        "companyTaxId",
+        "totalAmountTWD",
+        "status",
+        "submissionDate",
+        "createdAt"
+      ]
+    },
+    "Profile": {
+      "title": "Profile",
+      "description": "Shared organizational and reimbursement profile configuration",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Default applicant name"
+        },
+        "department": {
+          "type": "string",
+          "description": "Default department"
+        },
+        "defaultPaymentMethod": {
+          "type": "string",
+          "description": "Default payment card / method"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Company organization title"
+        },
+        "companyTaxId": {
+          "type": "string",
+          "description": "Company uniform tax ID"
+        },
+        "defaultExchangeRateUSD": {
+          "type": "number",
+          "description": "Default USD exchange rate"
+        }
+      },
+      "required": [
+        "name",
+        "department",
+        "defaultPaymentMethod",
+        "companyName",
+        "companyTaxId",
+        "defaultExchangeRateUSD"
+      ]
+    }
+  },
+  "firestore": {
+    "/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "Shared AI expense records"
+    },
+    "/offsets/{offsetId}": {
+      "schema": "Offset",
+      "description": "Shared reimbursement offset items"
+    },
+    "/batches/{batchId}": {
+      "schema": "Batch",
+      "description": "Shared reimbursement batches"
+    },
+    "/settings/{settingId}": {
+      "schema": "Profile",
+      "description": "Shared team settings and profile"
+    }
+  }
+}

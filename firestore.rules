@@ -1,0 +1,143 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Connectivity test collection
+    match /test/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Expenses collection
+    function isValidExpense(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.toolName is string && data.toolName.size() > 0 && data.toolName.size() <= 200
+        && data.toolCategory is string && data.toolCategory.size() <= 100
+        && data.billingType is string && data.billingType.size() <= 100
+        && data.department is string && data.department.size() <= 100
+        && data.paidByName is string && data.paidByName.size() <= 100
+        && data.paymentMethod is string && data.paymentMethod.size() <= 100
+        && data.accountIdentifier is string && data.accountIdentifier.size() <= 150
+        && data.paymentDate is string && data.paymentDate.size() <= 30
+        && data.amountTWD is number && data.amountTWD >= 0
+        && data.invoiceNumber is string && data.invoiceNumber.size() <= 100
+        && data.taxIdStatus is string && data.taxIdStatus.size() <= 50
+        && data.reimbursementStatus is string && data.reimbursementStatus.size() <= 50
+        && data.createdAt is string && data.createdAt.size() <= 50
+        && data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    match /expenses/{expenseId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn()
+        && isValidId(expenseId)
+        && isValidExpense(incoming())
+        && incoming().id == expenseId;
+      allow update: if isSignedIn()
+        && isValidId(expenseId)
+        && isValidExpense(incoming())
+        && incoming().id == existing().id
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(expenseId);
+    }
+
+    // Offsets collection
+    function isValidOffset(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.date is string && data.date.size() <= 30
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.offsetType is string && data.offsetType.size() <= 50
+        && data.amountTWD is number && data.amountTWD >= 0
+        && data.origin is string && data.origin.size() <= 150
+        && data.destination is string && data.destination.size() <= 150
+        && data.status is string && data.status.size() <= 50
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    match /offsets/{offsetId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn()
+        && isValidId(offsetId)
+        && isValidOffset(incoming())
+        && incoming().id == offsetId;
+      allow update: if isSignedIn()
+        && isValidId(offsetId)
+        && isValidOffset(incoming())
+        && incoming().id == existing().id
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(offsetId);
+    }
+
+    // Batches collection
+    function isValidBatch(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.batchNumber is string && data.batchNumber.size() <= 100
+        && data.title is string && data.title.size() <= 200
+        && data.applicantName is string && data.applicantName.size() <= 100
+        && data.applicantDepartment is string && data.applicantDepartment.size() <= 100
+        && data.companyName is string && data.companyName.size() <= 150
+        && data.companyTaxId is string && data.companyTaxId.size() <= 50
+        && data.totalAmountTWD is number && data.totalAmountTWD >= 0
+        && data.status is string && data.status.size() <= 50
+        && data.submissionDate is string && data.submissionDate.size() <= 30
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    match /batches/{batchId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn()
+        && isValidId(batchId)
+        && isValidBatch(incoming())
+        && incoming().id == batchId;
+      allow update: if isSignedIn()
+        && isValidId(batchId)
+        && isValidBatch(incoming())
+        && incoming().id == existing().id
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(batchId);
+    }
+
+    // Settings / Profile
+    function isValidProfile(data) {
+      return data.name is string && data.name.size() <= 100
+        && data.department is string && data.department.size() <= 100
+        && data.defaultPaymentMethod is string && data.defaultPaymentMethod.size() <= 150
+        && data.companyName is string && data.companyName.size() <= 150
+        && data.companyTaxId is string && data.companyTaxId.size() <= 50
+        && data.defaultExchangeRateUSD is number && data.defaultExchangeRateUSD > 0;
+    }
+
+    match /settings/{settingId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn()
+        && isValidId(settingId)
+        && isValidProfile(incoming());
+      allow update: if isSignedIn()
+        && isValidId(settingId)
+        && isValidProfile(incoming());
+      allow delete: if isSignedIn() && isValidId(settingId);
+    }
+  }
+}

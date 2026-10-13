@@ -9,6 +9,7 @@ interface HeaderProps {
   userProfile: UserProfile;
   offsetsTotal?: number;
   totalExpensesAmount?: number;
+  syncStatus?: 'connecting' | 'connected' | 'error';
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   userProfile,
   offsetsTotal = 2613,
   totalExpensesAmount = 9613,
+  syncStatus = 'connected',
 }) => {
   return (
     <header className="no-print sticky top-0 z-30 border-b border-indigo-100/80 bg-white/90 backdrop-blur-xl shadow-xs">
@@ -90,8 +92,35 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
 
-        {/* Right Settings */}
+        {/* Right Settings & Sync status */}
         <div className="flex items-center gap-2 shrink-0">
+          <div 
+            title={syncStatus === 'connected' ? '雲端即時資料庫：多人多裝置同步中' : syncStatus === 'connecting' ? '連線同步中...' : '離線模式'}
+            className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full border text-[11px] font-bold shadow-2xs ${
+              syncStatus === 'connected'
+                ? 'bg-emerald-50 border-emerald-200/80 text-emerald-700'
+                : syncStatus === 'connecting'
+                  ? 'bg-amber-50 border-amber-200 text-amber-700'
+                  : 'bg-slate-100 border-slate-200 text-slate-600'
+            }`}
+          >
+            <span className="relative flex h-2 w-2">
+              {syncStatus === 'connected' && (
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              )}
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                syncStatus === 'connected' 
+                  ? 'bg-emerald-500' 
+                  : syncStatus === 'connecting' 
+                    ? 'bg-amber-500' 
+                    : 'bg-slate-400'
+              }`}></span>
+            </span>
+            <span className="hidden sm:inline">
+              {syncStatus === 'connected' ? '雲端即時同步' : syncStatus === 'connecting' ? '同步連線中' : '本機模式'}
+            </span>
+          </div>
+
           <button
             onClick={onOpenSettings}
             title="系統設定"
