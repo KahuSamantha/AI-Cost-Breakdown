@@ -207,6 +207,12 @@ export default function App() {
     setEditingExpense(null);
   };
 
+  const handleUpdateExpenseFromReceipt = (updatedExpense: ExpenseRecord) => {
+    updateExpenses(expenses.map((e) => (e.id === updatedExpense.id ? updatedExpense : e)));
+    syncSaveExpense(updatedExpense);
+    setSelectedReceiptExpense(updatedExpense);
+  };
+
   // Delete expense
   const handleDeleteExpense = (id: string) => {
     const updated = expenses.filter((e) => e.id !== id);
@@ -421,6 +427,7 @@ export default function App() {
         isOpen={!!selectedReceiptExpense}
         onClose={() => setSelectedReceiptExpense(null)}
         expense={selectedReceiptExpense}
+        onUpdateExpense={handleUpdateExpenseFromReceipt}
       />
 
       <SettingsModal
