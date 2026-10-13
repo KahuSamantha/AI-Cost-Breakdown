@@ -432,8 +432,6 @@ export default function App() {
         batches={batches}
         offsets={offsets}
         onImportAllData={handleImportAllData}
-        onResetData={handleResetData}
-        onClearAllEmpty={handleClearAllToEmpty}
       />
 
       {/* Clean Light Footer */}

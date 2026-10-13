@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Download, Upload, RefreshCw, Check, Trash2, Cloud, Database } from 'lucide-react';
+import { X, Download, Upload, Check, Cloud, Database } from 'lucide-react';
 import { UserProfile, ExpenseRecord, ReimbursementBatch, ReimbursementOffset } from '../types';
 
 interface SettingsModalProps {
@@ -16,8 +16,6 @@ interface SettingsModalProps {
     profile: UserProfile;
     offsets?: ReimbursementOffset[];
   }) => void;
-  onResetData: () => void;
-  onClearAllEmpty?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -28,8 +26,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   batches,
   offsets,
   onImportAllData,
-  onResetData,
-  onClearAllEmpty,
 }) => {
   if (!isOpen) return null;
 
@@ -173,48 +169,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* 清除與重設按鈕：嚴格僅限開發測試端 (ais-dev) */}
-          {isDevEnv ? (
-            <div className="pt-3 border-t border-red-100 space-y-2">
-              <span className="text-xs font-bold text-red-600 block">
-                開發端測試除錯選項 (僅 ais-dev 可見)
-              </span>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (confirm('確定重設為初始示範資料？')) {
-                      onResetData();
-                      onClose();
-                    }
-                  }}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 font-semibold cursor-pointer"
-                >
-                  <RefreshCw className="h-3 w-3" />
-                  <span>重設示範資料</span>
-                </button>
-                {onClearAllEmpty && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (confirm('【測試端清空】確定要清空測試資料嗎？')) {
-                        onClearAllEmpty();
-                        onClose();
-                      }
-                    }}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 font-semibold cursor-pointer"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                    <span>清空開發端資料</span>
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="pt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
-              <span>🔒 上線協作安全保護：正式端已關閉清空功能，保護團隊資料安全。</span>
-            </div>
-          )}
+          {/* 安全保護提示 */}
+          <div className="pt-2 text-[11px] text-slate-500 flex items-center gap-1.5 border-t border-slate-100">
+            <span>🔒 資料安全防護：已停用批次清空與重設機制，所有資料由您與同仁在清單介面直接管理，代碼更新絕不會影響雲端資料庫。</span>
+          </div>
         </div>
 
         {/* Footer */}
