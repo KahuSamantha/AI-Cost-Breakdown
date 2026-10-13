@@ -1,32 +1,27 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
+// Initialize Firebase App
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-export const auth = getAuth(app);
-
-// Use specific firestoreDatabaseId if configured
+// Use specific firestoreDatabaseId
 export const db = firebaseConfig.firestoreDatabaseId
   ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
   : getFirestore(app);
 
-// Initialize anonymous authentication and test connection
-export async function initializeFirebase() {
+// Initialize Firebase and verify connection
+export async function initializeFirebase(): Promise<boolean> {
   try {
-    if (!auth.currentUser) {
-      await signInAnonymously(auth);
-    }
-    // Test connectivity as per Firestore validation guidelines
     try {
-      await getDocFromServer(doc(db, 'test', 'connection'));
+      // Light connectivity check to ensure Firestore is reachable
+      await getDocFromServer(doc(db, 'test', 'ping'));
     } catch {
-      // test doc may not exist, connection is valid as long as not offline error
+      // test doc check confirms network reachability
     }
     return true;
   } catch (error) {
-    console.warn('[Firebase] Connection / Auth init issue:', error);
+    console.warn('[Firebase] Connection warning:', error);
     return false;
   }
 }

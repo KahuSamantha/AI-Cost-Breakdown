@@ -5,7 +5,7 @@ const BATCHES_STORAGE_KEY = 'ai_reimbursement_batches_v5';
 const PROFILE_STORAGE_KEY = 'ai_reimbursement_profile_v5';
 const OFFSETS_STORAGE_KEY = 'ai_reimbursement_offsets_v6';
 
-// 台灣經濟研究院 品牌計畫核銷紀錄 (由新到舊排序)
+// 台灣經濟研究院 AI專案核銷紀錄 (由新到舊排序)
 export const INITIAL_OFFSETS: ReimbursementOffset[] = [
   {
     id: 'OFFSET-TAXI-0925',
@@ -18,7 +18,7 @@ export const INITIAL_OFFSETS: ReimbursementOffset[] = [
     targetExpenseId: 'EXP-CLAUDE-202606',
     targetExpenseName: 'Claude pro 代墊抵充',
     status: 'reimbursed',
-    notes: '以品牌計畫外勤計程車單抵充 AI 工具款項 NT$ 637',
+    notes: '以AI專案外勤計程車單抵充 AI 工具款項 NT$ 637',
     createdAt: '2026-09-25T09:00:00.000Z',
   },
   {
@@ -46,7 +46,7 @@ export const INITIAL_OFFSETS: ReimbursementOffset[] = [
     targetExpenseId: 'EXP-CLAUDE-202608',
     targetExpenseName: '8月 Claude pro / 9/21 儲值抵充',
     status: 'reimbursed',
-    notes: '品牌計畫外訪，以計程車車資抵充 AI 工具款項',
+    notes: 'AI專案外訪，以計程車車資抵充 AI 工具款項',
     createdAt: '2026-09-16T09:00:00.000Z',
   },
   {
@@ -67,7 +67,7 @@ export const INITIAL_OFFSETS: ReimbursementOffset[] = [
 
 export const DEFAULT_USER_PROFILE: UserProfile = {
   name: 'Samantha',
-  department: '品牌計畫',
+  department: 'AI專案',
   employeeId: 'TIER-BRAND',
   defaultPaymentMethod: '國泰 CUBE 卡 (末四碼 6821)',
   companyName: '台灣經濟研究院',
@@ -75,15 +75,15 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
   defaultExchangeRateUSD: 32.50,
 };
 
-// 台灣經濟研究院 品牌計畫 AI 支出明細：由新到舊排序
+// 台灣經濟研究院 AI專案 AI 支出明細：由新到舊排序
 export const INITIAL_EXPENSES: ExpenseRecord[] = [
   {
     id: 'EXP-GEMINI-20260923',
     toolName: '9/23 扣款 Gemini API',
     toolCategory: 'llm_api',
     billingType: 'pay_as_you_go',
-    projectName: '品牌計畫',
-    department: '品牌計畫',
+    projectName: 'AI專案',
+    department: 'AI專案',
     description: '9/23 Google Gemini API 用量扣款 150 台幣',
     paidByName: 'Samantha',
     paymentMethod: '國泰 CUBE 卡 (6821)',
@@ -113,8 +113,8 @@ export const INITIAL_EXPENSES: ExpenseRecord[] = [
     toolName: '9/21 額度儲值 (AI Token API 額度)',
     toolCategory: 'llm_api',
     billingType: 'pay_as_you_go',
-    projectName: '品牌計畫',
-    department: '品牌計畫',
+    projectName: 'AI專案',
+    department: 'AI專案',
     description: '9/21 線上儲值 10.05 美元 API 呼叫額度',
     paidByName: 'Samantha',
     paymentMethod: '國泰 CUBE 卡 (6821)',
@@ -144,8 +144,8 @@ export const INITIAL_EXPENSES: ExpenseRecord[] = [
     toolName: '9月 Claude pro 訂閱',
     toolCategory: 'chat_assistant',
     billingType: 'monthly_subscription',
-    projectName: '品牌計畫',
-    department: '品牌計畫',
+    projectName: 'AI專案',
+    department: 'AI專案',
     description: '9月份 Claude Pro 個人專業版訂閱 (21 USD 含附加額度)',
     paidByName: 'Samantha',
     paymentMethod: '國泰 CUBE 卡 (6821)',
@@ -176,8 +176,8 @@ export const INITIAL_EXPENSES: ExpenseRecord[] = [
     toolName: 'PERPLEXITY PRO 2026/9/10-2027/9/10',
     toolCategory: 'chat_assistant',
     billingType: 'annual_subscription',
-    projectName: '品牌計畫',
-    department: '品牌計畫',
+    projectName: 'AI專案',
+    department: 'AI專案',
     description: 'Perplexity Pro 年繳方案 (服務週期: 2026/9/10 - 2027/9/10)',
     paidByName: 'Samantha',
     paymentMethod: '國泰 CUBE 卡 (6821)',
@@ -208,8 +208,8 @@ export const INITIAL_EXPENSES: ExpenseRecord[] = [
     toolName: '8月 Claude pro 訂閱',
     toolCategory: 'chat_assistant',
     billingType: 'monthly_subscription',
-    projectName: '品牌計畫',
-    department: '品牌計畫',
+    projectName: 'AI專案',
+    department: 'AI專案',
     description: '8月份 Claude Pro 個人專業版訂閱 (20 USD)',
     paidByName: 'Samantha',
     paymentMethod: '國泰 CUBE 卡 (6821)',
@@ -240,8 +240,8 @@ export const INITIAL_EXPENSES: ExpenseRecord[] = [
     toolName: '7月 Claude pro 訂閱',
     toolCategory: 'chat_assistant',
     billingType: 'monthly_subscription',
-    projectName: '品牌計畫',
-    department: '品牌計畫',
+    projectName: 'AI專案',
+    department: 'AI專案',
     description: '7月份 Claude Pro 個人專業版訂閱 (20 USD)',
     paidByName: 'Samantha',
     paymentMethod: '國泰 CUBE 卡 (6821)',
@@ -272,8 +272,8 @@ export const INITIAL_EXPENSES: ExpenseRecord[] = [
     toolName: '6月 Claude pro 訂閱',
     toolCategory: 'chat_assistant',
     billingType: 'monthly_subscription',
-    projectName: '品牌計畫',
-    department: '品牌計畫',
+    projectName: 'AI專案',
+    department: 'AI專案',
     description: '6月份 Claude Pro 個人專業版訂閱 (20 USD)',
     paidByName: 'Samantha',
     paymentMethod: '國泰 CUBE 卡 (6821)',
@@ -305,9 +305,9 @@ export const INITIAL_BATCHES: ReimbursementBatch[] = [
   {
     id: 'EXP-BATCH-202609',
     batchNumber: 'EXP-2026-09',
-    title: '台灣經濟研究院 品牌計畫 9月份 AI 工具核銷申請 (Perplexity Pro、Claude Pro、Gemini API)',
+    title: '台灣經濟研究院 AI專案 9月份 AI 工具核銷申請 (Perplexity Pro、Claude Pro、Gemini API)',
     applicantName: 'Samantha',
-    applicantDepartment: '品牌計畫',
+    applicantDepartment: 'AI專案',
     companyName: '台灣經濟研究院',
     companyTaxId: '04149909',
     expenseIds: [
@@ -321,7 +321,7 @@ export const INITIAL_BATCHES: ReimbursementBatch[] = [
     status: 'submitted',
     submissionDate: '2026-09-22',
     targetPayoutDate: '2026-09-30',
-    notes: '台灣經濟研究院 品牌計畫 AI 工具與 API 額度核銷請款單。',
+    notes: '台灣經濟研究院 AI專案 AI 工具與 API 額度核銷請款單。',
     createdAt: '2026-09-22T08:00:00.000Z',
   },
 ];

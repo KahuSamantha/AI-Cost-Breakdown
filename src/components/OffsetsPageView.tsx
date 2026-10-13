@@ -197,9 +197,8 @@ export const OffsetsPageView: React.FC<OffsetsPageViewProps> = ({
   const handleExportCSV = () => {
     const toExport = selectedOffsets.length > 0 ? selectedOffsets : filteredOffsets;
     const rows = [
-      ['台灣經濟研究院 品牌計畫 費用核銷抵充紀錄 (Samantha)'],
+      ['費用核銷抵充明細紀錄'],
       [`製表日期: ${new Date().toLocaleDateString('zh-TW')}`],
-      ['單位: 台灣經濟研究院 品牌計畫'],
       [''],
       ['核銷項目 ID', '日期', '事由名稱', '抵充類別', '起始地點', '到達地點', '核銷金額 (NT$)', '備註'],
       ...toExport.map((o) => [
@@ -233,7 +232,7 @@ export const OffsetsPageView: React.FC<OffsetsPageViewProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
         <div>
           <div className="text-xs text-slate-500 font-medium">
-            <span className="font-bold text-slate-700">台灣經濟研究院 · 品牌計畫</span>
+            <span className="font-bold text-pink-600">外勤車資核銷抵充</span>
           </div>
           <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
             核銷抵充明細

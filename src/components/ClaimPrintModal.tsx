@@ -63,7 +63,7 @@ export const ClaimPrintModal: React.FC<ClaimPrintModalProps> = ({
                 {batch.companyName || userProfile.companyName}
               </div>
               <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 mt-1">
-                費用支出證明單 (品牌計畫 AI 工具費用核銷)
+                費用支出證明單 (AI 工具費用紀錄)
               </h1>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500">
                 <span>統一編號: {batch.companyTaxId || userProfile.companyTaxId}</span>
@@ -160,7 +160,7 @@ export const ClaimPrintModal: React.FC<ClaimPrintModalProps> = ({
               </span>
               <p className="mt-1 text-slate-600 leading-relaxed">
                 {batch.notes ||
-                  '台灣經濟研究院 品牌計畫 AI 工具費用核銷請款單，已檢附電子收據憑證備查，請惠予核銷撥款。'}
+                  'AI 工具費用核銷請款單，已檢附電子收據憑證備查，請惠予核銷撥款。'}
               </p>
             </div>
 

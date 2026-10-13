@@ -78,14 +78,14 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span>{userProfile.companyName} · 品牌計畫</span>
+                <span>AI 工具費用明細 · 即時協作同步</span>
               </div>
             </div>
 
             {/* Main Key Visual Headline */}
             <div>
               <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">
-                品牌計畫 AI 工具費用核銷系統
+                AI 工具費用明細紀錄
               </h1>
             </div>
 

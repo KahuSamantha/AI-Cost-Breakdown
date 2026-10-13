@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Save, Download, Upload, RefreshCw, User, Building, Landmark, Check, Trash2, ShieldCheck } from 'lucide-react';
+import { X, Download, Upload, RefreshCw, Check, Trash2, Cloud, Database } from 'lucide-react';
 import { UserProfile, ExpenseRecord, ReimbursementBatch, ReimbursementOffset } from '../types';
 
 interface SettingsModalProps {
@@ -24,7 +24,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   userProfile,
-  onSaveProfile,
   expenses,
   batches,
   offsets,
@@ -32,31 +31,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onResetData,
   onClearAllEmpty,
 }) => {
-  const [profile, setProfile] = useState<UserProfile>(userProfile);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-
   if (!isOpen) return null;
 
   const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
   const isDevEnv = hostname.includes('ais-dev');
-  const isProdEnv = hostname.includes('ais-pre');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSaveProfile(profile);
-    setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-      onClose();
-    }, 600);
-  };
+  const isProdEnv = hostname.includes('ais-pre') || hostname.includes('vercel.app');
 
   // Export JSON backup
   const handleExportJSON = () => {
     const backup = {
-      version: '2.1',
+      version: '3.0',
       exportDate: new Date().toISOString(),
-      profile,
+      profile: userProfile,
       expenses,
       batches,
       offsets,
@@ -65,7 +51,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `品牌計畫_AI核銷系統備份_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `AI費用紀錄備份_${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -79,17 +65,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target?.result as string);
-        if (parsed.expenses && parsed.profile) {
+        if (parsed.expenses) {
           onImportAllData({
             expenses: parsed.expenses,
             batches: parsed.batches || [],
-            profile: parsed.profile,
+            profile: parsed.profile || userProfile,
             offsets: parsed.offsets || [],
           });
-          alert('資料備份已成功還原！');
+          alert('資料備份已成功還原並同步！');
           onClose();
         } else {
-          alert('備份檔案格式不正確，找不到 expenses 或 profile');
+          alert('備份檔案格式不正確，找不到 expenses 資料');
         }
       } catch (err) {
         alert('解析 JSON 檔案失敗，請檢查格式');
@@ -100,14 +86,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white shadow-xl overflow-hidden my-8 text-slate-900">
+      <div className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-xl overflow-hidden my-8 text-slate-900">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
-          <div>
-            <h2 className="text-base font-extrabold text-slate-900">品牌計畫核銷系統設定</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              台灣經濟研究院 Samantha 帳號與抬頭設定
-            </p>
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600">
+              <Cloud className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-extrabold text-slate-900">雲端同步與資料備份</h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                AI 工具費用紀錄 · 多人即時協作狀態
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -117,154 +108,61 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto text-xs">
-          {/* Section 1: Applicant Profile */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 font-black text-slate-900 uppercase tracking-wider text-xs">
-              <User className="h-4 w-4 text-indigo-600" />
-              <span>1. 申請人基本資料</span>
+        <div className="p-6 space-y-5 text-xs">
+          {/* 雲端即時同步協作說明卡 */}
+          <div className="p-4 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-xs space-y-2">
+            <div className="flex items-center justify-between flex-wrap gap-1">
+              <span className="font-bold text-emerald-950 flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                雲端資料庫已連線 (多人即時協作)：
+              </span>
+              <span className="px-2 py-0.5 rounded-full font-mono text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                即時同步中
+              </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">申請人姓名</label>
-                <input
-                  type="text"
-                  required
-                  value={profile.name}
-                  onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
-                />
-              </div>
+            <p className="text-[11px] text-emerald-800 leading-relaxed">
+              所有人開啟 <strong>https://ai-cost-breakdown.vercel.app/</strong> 都能看到完全相同的即時數據。無論使用手機或電腦，新增、修改或刪除費用紀錄皆會即時同步給所有同仁。
+            </p>
+          </div>
 
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">所屬部門</label>
-                <input
-                  type="text"
-                  required
-                  value={profile.department}
-                  onChange={(e) => setProfile({ ...profile, department: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">員工編號 (選填)</label>
-                <input
-                  type="text"
-                  value={profile.employeeId}
-                  onChange={(e) => setProfile({ ...profile, employeeId: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
-                />
-              </div>
-            </div>
-
+          {/* 目前資料統計 */}
+          <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
             <div>
-              <label className="block text-slate-700 font-bold mb-1">
-                預設代墊付款方式 / 卡別
-              </label>
-              <input
-                type="text"
-                placeholder="例如: 國泰 CUBE 卡 (末四碼 6821)"
-                value={profile.defaultPaymentMethod}
-                onChange={(e) => setProfile({ ...profile, defaultPaymentMethod: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
-              />
+              <span className="text-slate-500 text-[11px] block">目前 AI 支出筆數</span>
+              <span className="text-base font-black text-indigo-700 font-mono">{expenses.length} 筆</span>
+            </div>
+            <div>
+              <span className="text-slate-500 text-[11px] block">外勤車資抵充筆數</span>
+              <span className="text-base font-black text-pink-700 font-mono">{offsets.length} 筆</span>
             </div>
           </div>
 
-          {/* Section 2: Company Details */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <div className="flex items-center gap-2 font-black text-slate-900 uppercase tracking-wider text-xs">
-              <Building className="h-4 w-4 text-indigo-600" />
-              <span>2. 公司抬頭與統一編號</span>
+          {/* 資料備份與還原 */}
+          <div className="space-y-3 pt-2 border-t border-slate-100">
+            <div className="font-black text-slate-900 uppercase tracking-wider text-xs flex items-center gap-1.5">
+              <Database className="h-3.5 w-3.5 text-indigo-600" />
+              <span>資料備份與手動還原</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">公司名稱 (抬頭)</label>
-                <input
-                  type="text"
-                  value={profile.companyName}
-                  onChange={(e) => setProfile({ ...profile, companyName: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">公司統一編號</label>
-                <input
-                  type="text"
-                  value={profile.companyTaxId}
-                  onChange={(e) => setProfile({ ...profile, companyTaxId: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Backup, Sync & Reset */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <div className="font-black text-slate-900 uppercase tracking-wider text-xs">
-              3. 資料備份、跨環境同步與清除
-            </div>
-
-            {/* 安全隔離保障提示卡 */}
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
-              <div className="flex items-center justify-between flex-wrap gap-1">
-                <span className="font-bold text-slate-700 flex items-center gap-1">
-                  <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" />
-                  目前連線環境：
-                </span>
-                <span className={`px-2 py-0.5 rounded-full font-mono text-[11px] font-bold ${
-                  isDevEnv 
-                    ? 'bg-amber-100 text-amber-800 border border-amber-300' 
-                    : isProdEnv 
-                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
-                      : 'bg-slate-100 text-slate-800 border border-slate-200'
-                }`}>
-                  {isDevEnv ? '🧪 開發測試端 (ais-dev)' : isProdEnv ? '🚀 上線正式端 (ais-pre)' : '本機環境'}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                🛡️ <strong>跨環境安全隔離保障：</strong>瀏覽器同源安全性規範嚴格隔離不同網址，您在此環境執行的任何「清空」或「重設」動作，<strong>絕對不會影響到另一個網域或上線版之數據</strong>。
-              </p>
-            </div>
-
-            {/* 雲端即時同步協作提示 */}
-            <div className="p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs space-y-1.5">
-              <div className="flex items-center justify-between flex-wrap gap-1">
-                <span className="font-bold text-emerald-900 flex items-center gap-1.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  Firebase 雲端資料庫即時同步：
-                </span>
-                <span className="px-2 py-0.5 rounded-full font-bold text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  多人多裝置即時同步已啟用
-                </span>
-              </div>
-              <p className="text-[11px] text-emerald-800/90 leading-relaxed">
-                📱💻 <strong>跨裝置協作：</strong>您與同仁無論使用手機或電腦開啟此連結，所有新增、修改的核銷與支出資料皆會<strong>秒級即時同步</strong>。
-              </p>
-            </div>
-
-            <p className="text-slate-500">
-              您可以將目前的全部報銷紀錄與設定匯出為 JSON 備份，或自檔案還原：
+            <p className="text-slate-500 leading-relaxed text-[11px]">
+              您可以隨時將所有費用明細匯出為 JSON 備份檔留存，或匯入先前建立的備份檔：
             </p>
 
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <button
                 type="button"
                 onClick={handleExportJSON}
-                className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-700 cursor-pointer transition-colors font-bold"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-bold transition-all cursor-pointer shadow-xs"
               >
-                <Download className="h-3.5 w-3.5 text-indigo-600" />
+                <Download className="h-3.5 w-3.5" />
                 <span>匯出完整備份 (JSON)</span>
               </button>
 
-              <label className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-700 cursor-pointer transition-colors font-bold">
-                <Upload className="h-3.5 w-3.5 text-indigo-600" />
-                <span>匯入備份檔案</span>
+              <label className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 font-bold transition-all cursor-pointer shadow-xs">
+                <Upload className="h-3.5 w-3.5" />
+                <span>匯入備份還原</span>
                 <input
                   type="file"
                   accept=".json"
@@ -272,83 +170,63 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="hidden"
                 />
               </label>
+            </div>
+          </div>
 
-              {/* 上線端絕不顯示清空按鈕，僅開發端允許清除開發測試數據 */}
-              {!isProdEnv && onClearAllEmpty && (
+          {/* 清除與重設按鈕：嚴格僅限開發測試端 (ais-dev) */}
+          {isDevEnv ? (
+            <div className="pt-3 border-t border-red-100 space-y-2">
+              <span className="text-xs font-bold text-red-600 block">
+                開發端測試除錯選項 (僅 ais-dev 可見)
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => {
-                    if (
-                      window.confirm(
-                        `確定要清空目前開發端的所有支出與核銷資料嗎？\n\n注意：上線版 (ais-pre) 的資料完全獨立不受任何影響。`
-                      )
-                    ) {
-                      onClearAllEmpty();
-                      onClose();
-                    }
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-2 text-rose-700 hover:bg-rose-50 rounded-xl border border-rose-200 cursor-pointer transition-colors font-bold"
-                >
-                  <Trash2 className="h-3.5 w-3.5 text-rose-600" />
-                  <span>清空開發端所有紀錄 (清為0筆)</span>
-                </button>
-              )}
-
-              {!isProdEnv && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        `確定要將目前開發端重設為系統初始範例資料嗎？\n\n注意：上線版 (ais-pre) 的資料完全獨立不受任何影響。`
-                      )
-                    ) {
+                    if (confirm('確定重設為初始示範資料？')) {
                       onResetData();
                       onClose();
                     }
                   }}
-                  className="flex items-center gap-1.5 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-xl border border-slate-200 cursor-pointer transition-colors font-bold"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 font-semibold cursor-pointer"
                 >
-                  <RefreshCw className="h-3.5 w-3.5 text-slate-500" />
-                  <span>重設為初始範例資料</span>
+                  <RefreshCw className="h-3 w-3" />
+                  <span>重設示範資料</span>
                 </button>
-              )}
-
-              {isProdEnv && (
-                <div className="w-full text-[11px] text-slate-400 italic pt-1">
-                  🔒 上線正式環境為確保同仁協作資料安全，已關閉清空與重設按鈕。
-                </div>
-              )}
+                {onClearAllEmpty && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('【測試端清空】確定要清空測試資料嗎？')) {
+                        onClearAllEmpty();
+                        onClose();
+                      }
+                    }}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 font-semibold cursor-pointer"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    <span>清空開發端資料</span>
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="pt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
+              <span>🔒 上線協作安全保護：正式端已關閉清空功能，保護團隊資料安全。</span>
+            </div>
+          )}
+        </div>
 
-          {/* Footer */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer font-bold"
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              className="flex items-center gap-1.5 px-5 py-2 font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl transition-all cursor-pointer shadow-sm"
-            >
-              {saveSuccess ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  <span>已儲存</span>
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4" />
-                  <span>儲存設定</span>
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+        {/* Footer */}
+        <div className="px-6 py-3.5 bg-slate-50/80 border-t border-slate-100 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl transition-colors cursor-pointer text-xs"
+          >
+            關閉
+          </button>
+        </div>
       </div>
     </div>
   );

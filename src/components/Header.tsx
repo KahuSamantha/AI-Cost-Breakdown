@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, Sparkles, Car, ReceiptText, LayoutDashboard } from 'lucide-react';
+import { Database, Sparkles, Car, ReceiptText, LayoutDashboard } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface HeaderProps {
@@ -35,10 +35,10 @@ export const Header: React.FC<HeaderProps> = ({
             className="text-left group cursor-pointer focus:outline-none min-w-0"
           >
             <div className="text-xs sm:text-base font-extrabold tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
-              品牌計畫 AI工具費用核銷系統
+              AI 工具費用明細紀錄
             </div>
             <div className="text-[10px] text-slate-500 font-medium hidden md:block">
-              台灣經濟研究院 · 品牌計畫
+              多人跨裝置即時協作平台
             </div>
           </button>
         </div>
@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Car className={`h-4 w-4 ${currentTab === 'offsets' ? 'text-pink-600' : 'text-slate-500'}`} />
-            <span>核銷紀錄</span>
+            <span>車資核銷</span>
             <span className={`inline-flex items-center justify-center px-1.5 py-0.5 text-[11px] font-bold rounded-md font-mono ${
               currentTab === 'offsets' ? 'bg-pink-200/80 text-pink-900' : 'bg-slate-100 text-slate-600'
             }`}>
@@ -95,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Right Settings & Sync status */}
         <div className="flex items-center gap-2 shrink-0">
           <div 
-            title={syncStatus === 'connected' ? '雲端即時資料庫：多人多裝置同步中' : syncStatus === 'connecting' ? '連線同步中...' : '離線模式'}
+            title={syncStatus === 'connected' ? '雲端即時資料庫：多人多裝置同步中 (ai-cost-breakdown)' : syncStatus === 'connecting' ? '連線同步中...' : '本機模式'}
             className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full border text-[11px] font-bold shadow-2xs ${
               syncStatus === 'connected'
                 ? 'bg-emerald-50 border-emerald-200/80 text-emerald-700'
@@ -117,22 +117,17 @@ export const Header: React.FC<HeaderProps> = ({
               }`}></span>
             </span>
             <span className="hidden sm:inline">
-              {syncStatus === 'connected' ? '雲端即時同步' : syncStatus === 'connecting' ? '同步連線中' : '本機模式'}
+              {syncStatus === 'connected' ? '多人即時同步中' : syncStatus === 'connecting' ? '同步連線中' : '本機模式'}
             </span>
           </div>
 
           <button
             onClick={onOpenSettings}
-            title="系統設定"
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2 sm:px-3 py-1 text-slate-700 hover:border-slate-300 hover:bg-white hover:text-slate-900 transition-all cursor-pointer shadow-xs"
+            title="資料備份與連線狀態"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2 sm:px-2.5 py-1 text-slate-700 hover:border-slate-300 hover:bg-white hover:text-slate-900 transition-all cursor-pointer shadow-xs text-xs font-semibold"
           >
-            <div className="h-6 w-6 rounded-full bg-indigo-600 flex items-center justify-center text-[11px] font-bold text-white shadow-xs">
-              S
-            </div>
-            <span className="hidden sm:inline text-xs font-semibold text-slate-800">
-              {userProfile.name}
-            </span>
-            <Settings className="h-3.5 w-3.5 text-slate-400" />
+            <Database className="h-3.5 w-3.5 text-indigo-600" />
+            <span className="hidden sm:inline">資料備份</span>
           </button>
         </div>
       </div>

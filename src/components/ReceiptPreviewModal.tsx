@@ -47,7 +47,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
     } else {
       // If there is no real upload, generate a text receipt summary voucher for download
       const content = `=====================================================
-台灣經濟研究院 品牌計畫 AI工具費用收據憑證備查單
+AI 工具費用收據憑證備查單
 =====================================================
 項目名稱: ${expense.toolName}
 請款人員: ${expense.paidByName}

@@ -2,32 +2,14 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Global default deny
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
     // Helper functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function incoming() {
-      return request.resource.data;
-    }
-
-    function existing() {
-      return resource.data;
-    }
-
     function isValidId(id) {
-      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+      return id is string && id.size() > 0 && id.size() <= 128;
     }
 
     // Connectivity test collection
     match /test/{docId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn();
+      allow read, write: if true;
     }
 
     // Expenses collection
@@ -50,17 +32,14 @@ service cloud.firestore {
     }
 
     match /expenses/{expenseId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn()
-        && isValidId(expenseId)
-        && isValidExpense(incoming())
-        && incoming().id == expenseId;
-      allow update: if isSignedIn()
-        && isValidId(expenseId)
-        && isValidExpense(incoming())
-        && incoming().id == existing().id
-        && incoming().createdAt == existing().createdAt;
-      allow delete: if isSignedIn() && isValidId(expenseId);
+      allow read: if true;
+      allow create: if isValidId(expenseId)
+        && isValidExpense(request.resource.data)
+        && request.resource.data.id == expenseId;
+      allow update: if isValidId(expenseId)
+        && isValidExpense(request.resource.data)
+        && request.resource.data.id == resource.data.id;
+      allow delete: if isValidId(expenseId);
     }
 
     // Offsets collection
@@ -77,17 +56,14 @@ service cloud.firestore {
     }
 
     match /offsets/{offsetId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn()
-        && isValidId(offsetId)
-        && isValidOffset(incoming())
-        && incoming().id == offsetId;
-      allow update: if isSignedIn()
-        && isValidId(offsetId)
-        && isValidOffset(incoming())
-        && incoming().id == existing().id
-        && incoming().createdAt == existing().createdAt;
-      allow delete: if isSignedIn() && isValidId(offsetId);
+      allow read: if true;
+      allow create: if isValidId(offsetId)
+        && isValidOffset(request.resource.data)
+        && request.resource.data.id == offsetId;
+      allow update: if isValidId(offsetId)
+        && isValidOffset(request.resource.data)
+        && request.resource.data.id == resource.data.id;
+      allow delete: if isValidId(offsetId);
     }
 
     // Batches collection
@@ -106,17 +82,14 @@ service cloud.firestore {
     }
 
     match /batches/{batchId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn()
-        && isValidId(batchId)
-        && isValidBatch(incoming())
-        && incoming().id == batchId;
-      allow update: if isSignedIn()
-        && isValidId(batchId)
-        && isValidBatch(incoming())
-        && incoming().id == existing().id
-        && incoming().createdAt == existing().createdAt;
-      allow delete: if isSignedIn() && isValidId(batchId);
+      allow read: if true;
+      allow create: if isValidId(batchId)
+        && isValidBatch(request.resource.data)
+        && request.resource.data.id == batchId;
+      allow update: if isValidId(batchId)
+        && isValidBatch(request.resource.data)
+        && request.resource.data.id == resource.data.id;
+      allow delete: if isValidId(batchId);
     }
 
     // Settings / Profile
@@ -130,14 +103,8 @@ service cloud.firestore {
     }
 
     match /settings/{settingId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn()
-        && isValidId(settingId)
-        && isValidProfile(incoming());
-      allow update: if isSignedIn()
-        && isValidId(settingId)
-        && isValidProfile(incoming());
-      allow delete: if isSignedIn() && isValidId(settingId);
+      allow read: if true;
+      allow write: if isValidId(settingId) && isValidProfile(request.resource.data);
     }
   }
 }

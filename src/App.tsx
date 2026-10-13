@@ -240,7 +240,7 @@ export default function App() {
     const newBatch: ReimbursementBatch = {
       id: `BATCH-${Date.now()}`,
       batchNumber: batchNo,
-      title: `台灣經濟研究院 品牌計畫 ${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月 AI 工具核銷請款單`,
+      title: `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月 AI 工具核銷請款單`,
       applicantName: userProfile.name,
       applicantDepartment: userProfile.department,
       companyName: userProfile.companyName,
@@ -250,7 +250,7 @@ export default function App() {
       totalOriginalUSD: selectedItems.filter(e => e.currency === 'USD').reduce((s, e) => s + (e.originalAmount || 0), 0),
       status: 'submitted',
       submissionDate: dateObj.toISOString().slice(0, 10),
-      notes: '台灣經濟研究院 品牌計畫 AI 工具費用核銷請款單。',
+      notes: 'AI 工具訂閱與 API 用量核銷請款單。',
       createdAt: dateObj.toISOString(),
     };
 
@@ -440,12 +440,13 @@ export default function App() {
       <footer className="relative z-10 no-print border-t border-slate-200/80 bg-white/80 backdrop-blur-md py-4 text-center text-xs text-slate-500">
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
-            <span className="font-bold text-slate-700">台灣經濟研究院 · 品牌計畫</span>
+            <span className="font-bold text-slate-700">AI 工具費用紀錄平台</span>
             <span className="mx-2">·</span>
-            <span>品牌計畫 AI工具費用核銷系統</span>
+            <span>多人跨裝置即時協作</span>
           </div>
-          <div>
-            申請人 / 經辦人: <strong className="text-slate-700">{userProfile.name}</strong>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>雲端即時連線中</span>
           </div>
         </div>
       </footer>

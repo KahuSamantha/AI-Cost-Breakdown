@@ -55,7 +55,7 @@ export function calculateExpenseAmounts(
 /**
  * Export expense records to CSV with UTF-8 BOM for Microsoft Excel (Traditional Chinese)
  */
-export function exportExpensesToCSV(expenses: ExpenseRecord[], filename = '品牌計畫_AI工具費用清單.csv') {
+export function exportExpensesToCSV(expenses: ExpenseRecord[], filename = 'AI工具費用支出清單.csv') {
   const headers = [
     '項目編號',
     '付款日期',
