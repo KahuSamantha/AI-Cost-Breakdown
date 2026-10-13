@@ -89,6 +89,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         return;
       }
       setReceiptName(file.name);
+      // 單號自動跟隨上傳文件的檔案名稱
+      setInvoiceNumber(file.name);
       const reader = new FileReader();
       reader.onloadend = () => {
         setReceiptUrl(reader.result as string);
@@ -109,6 +111,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       return;
     }
 
+    // 單號若未手動填寫但有上傳檔案，自動跟隨檔案名稱
+    const finalInvoiceNumber = invoiceNumber.trim() || receiptName || '';
+
     onSave(
       {
         toolName: toolName.trim(),
@@ -127,7 +132,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         foreignFeeRate: 0,
         foreignFeeTWD: 0,
         subtotalTWD: Math.round(finalAmount),
-        invoiceNumber,
+        invoiceNumber: finalInvoiceNumber,
         taxIdStatus,
         receiptUrl,
         receiptName,
@@ -306,6 +311,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                   onChange={(e) => setInvoiceNumber(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white font-mono font-medium"
                 />
+                <p className="text-[10px] text-slate-400 mt-1">上傳憑證文件時將自動跟隨為檔案名稱</p>
               </div>
 
               <div>

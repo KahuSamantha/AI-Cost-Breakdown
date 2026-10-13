@@ -361,8 +361,10 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                       <span>{expense.paymentMethod || '信用卡支付'}</span>
                       {expense.accountIdentifier && <span> · {expense.accountIdentifier}</span>}
                     </div>
-                    {expense.invoiceNumber && (
-                      <span className="font-mono text-slate-400 shrink-0">單號: {expense.invoiceNumber}</span>
+                    {(expense.invoiceNumber || expense.receiptName) && (
+                      <span className="font-mono text-slate-400 shrink-0">
+                        單號: {expense.invoiceNumber || expense.receiptName}
+                      </span>
                     )}
                   </div>
 
@@ -495,9 +497,9 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                         <div className="font-bold text-slate-900 text-xs sm:text-sm">
                           {expense.toolName}
                         </div>
-                        {expense.invoiceNumber && (
-                          <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                            單號: {expense.invoiceNumber}
+                        {(expense.invoiceNumber || expense.receiptName) && (
+                          <div className="text-[11px] text-slate-400 font-mono mt-0.5 truncate max-w-[260px]">
+                            單號: {expense.invoiceNumber || expense.receiptName}
                           </div>
                         )}
                       </td>
