@@ -1,8 +1,5 @@
-import React from 'react';
 import { 
-  Plus, 
   ArrowRight, 
-  Car, 
   TrendingUp 
 } from 'lucide-react';
 import { UserProfile } from '../types';
@@ -12,8 +9,8 @@ interface KeyVisualHeroProps {
   userProfile: UserProfile;
   totalExpensesAmount: number;
   totalOffsetsAmount: number;
-  onOpenNewExpense: () => void;
-  onOpenNewOffset: () => void;
+  onOpenNewExpense?: () => void;
+  onOpenNewOffset?: () => void;
   onNavigateToExpenses: () => void;
   onNavigateToOffsets: () => void;
 }
@@ -22,8 +19,6 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
   userProfile,
   totalExpensesAmount,
   totalOffsetsAmount,
-  onOpenNewExpense,
-  onOpenNewOffset,
   onNavigateToExpenses,
   onNavigateToOffsets,
 }) => {
@@ -87,25 +82,9 @@ export const KeyVisualHero: React.FC<KeyVisualHeroProps> = ({
               <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">
                 AI 工具費用明細紀錄
               </h1>
-            </div>
-
-            {/* Action CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1 sm:pt-2">
-              <button
-                onClick={onOpenNewExpense}
-                className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-white hover:bg-indigo-50 rounded-xl transition-all cursor-pointer shadow-lg shadow-white/10 hover:shadow-white/20 active:scale-98"
-              >
-                <Plus className="h-4 w-4 text-indigo-600 shrink-0" />
-                <span>記一筆 AI 支出</span>
-              </button>
-
-              <button
-                onClick={onOpenNewOffset}
-                className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold text-pink-200 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/40 rounded-xl transition-all cursor-pointer backdrop-blur-md active:scale-98"
-              >
-                <Car className="h-4 w-4 text-pink-400 shrink-0" />
-                <span>新增車資核銷紀錄</span>
-              </button>
+              <p className="text-xs sm:text-sm text-indigo-100/80 mt-1 sm:mt-2 max-w-xl leading-relaxed">
+                彙整各項 AI 工具、API 與模型訂閱費用，並即時追蹤外勤車資核銷進度。
+              </p>
             </div>
           </div>
 

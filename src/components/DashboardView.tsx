@@ -2,16 +2,13 @@ import React, { useMemo } from 'react';
 import { 
   CreditCard, 
   ArrowRight, 
-  Plus, 
   FileCheck2,
-  Edit3,
-  Trash2,
   MapPin,
-  Navigation,
-  Car
+  Navigation
 } from 'lucide-react';
 import { ExpenseRecord, ReimbursementOffset, UserProfile } from '../types';
 import { formatTWD, formatDate } from '../utils/formatters';
+import { CATEGORY_LABELS } from '../data/presets';
 import { KeyVisualHero } from './KeyVisualHero';
 
 interface DashboardViewProps {
@@ -20,7 +17,7 @@ interface DashboardViewProps {
   userProfile: UserProfile;
   onNavigateToExpenses: () => void;
   onNavigateToOffsets: () => void;
-  onOpenNewExpense: () => void;
+  onOpenNewExpense?: () => void;
   onOpenNewOffset?: () => void;
   onEditOffset?: (offset: ReimbursementOffset) => void;
   onDeleteOffset?: (id: string) => void;
@@ -75,7 +72,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* 兩大清單左右對照 (由新到舊排序) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* 左側子區塊: AI 支出清單 */}
-        <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-3.5 sm:p-5 space-y-3 sm:space-y-4">
+        <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-3.5 sm:p-5 space-y-3 sm:space-y-4 flex flex-col h-full">
           <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/80">
             <div className="flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-indigo-600 shrink-0" />
@@ -90,32 +87,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </button>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-2.5 flex-1 flex flex-col justify-between">
             {sortedExpenses.slice(0, 6).map((expense) => (
               <div
                 key={expense.id}
-                className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white hover:border-indigo-200 transition-all flex items-center justify-between gap-2.5 text-xs shadow-xs"
+                onClick={onNavigateToExpenses}
+                className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 transition-all text-xs shadow-xs flex flex-col justify-between h-[74px] sm:h-[76px] cursor-pointer group"
               >
-                <div className="space-y-0.5 min-w-0 flex-1">
-                  <div className="font-extrabold text-slate-900 truncate">
-                    {expense.toolName}
+                {/* Top line: Tool name + category tag on left, amount on right */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+                      {expense.toolName}
+                    </span>
+                    {expense.toolCategory && (
+                      <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold border shrink-0 bg-indigo-50 text-indigo-700 border-indigo-200 truncate">
+                        {CATEGORY_LABELS[expense.toolCategory] || expense.toolCategory}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-[11px] text-slate-500 font-medium truncate">
-                    <span className="font-mono font-bold text-indigo-700">{formatDate(expense.paymentDate)}</span> · {expense.paymentMethod}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="font-black text-slate-900 font-mono tabular-nums text-sm sm:text-base">
+                  <div className="font-black text-slate-900 font-mono tabular-nums text-sm sm:text-base shrink-0">
                     {formatTWD(expense.amountTWD)}
                   </div>
+                </div>
+
+                {/* Bottom line: Date · Payment method */}
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-500 pt-1 border-t border-slate-100 min-w-0">
+                  <span className="font-mono font-bold text-indigo-700 shrink-0">
+                    {formatDate(expense.paymentDate)}
+                  </span>
+                  <span className="text-slate-300">·</span>
+                  <span className="truncate">
+                    {expense.paymentMethod}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* 右側子區塊: 核銷紀錄清單 (顯示 起始地點 → 到達地點) */}
-        <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-3.5 sm:p-5 space-y-3 sm:space-y-4">
+        {/* 右側子區塊: 核銷紀錄清單 (與左側高度、內距與結構完全對齊，無編輯/刪除按鈕) */}
+        <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-3.5 sm:p-5 space-y-3 sm:space-y-4 flex flex-col h-full">
           <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/80">
             <div className="flex items-center gap-2">
               <FileCheck2 className="h-4 w-4 text-pink-600 shrink-0" />
@@ -130,84 +142,48 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </button>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-2.5 flex-1 flex flex-col justify-between">
             {sortedOffsets.slice(0, 6).map((offset) => {
               const isTaxi = offset.offsetType === 'taxi';
               return (
                 <div
                   key={offset.id}
-                  className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white hover:border-pink-200 transition-all text-xs shadow-xs group space-y-2"
+                  onClick={onNavigateToOffsets}
+                  className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-white hover:border-pink-300 transition-all text-xs shadow-xs flex flex-col justify-between h-[74px] sm:h-[76px] cursor-pointer group"
                 >
-                  {/* Top Line: Title & Tag on Left, Amount & Actions on Right */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div 
-                      onClick={() => onEditOffset ? onEditOffset(offset) : onNavigateToOffsets()}
-                      className="cursor-pointer min-w-0 flex-1"
-                    >
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-extrabold text-slate-900 group-hover:text-pink-600 transition-colors break-words">
-                          {offset.title}
-                        </span>
-                        <span className={`inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold border shrink-0 ${
-                          isTaxi 
-                            ? 'bg-pink-50 text-pink-700 border-pink-200' 
-                            : 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                        }`}>
-                          {isTaxi ? '車資單據' : '直接撥款'}
-                        </span>
-                      </div>
+                  {/* Top line: Title + tag on left, amount on right (無編輯與刪除按鈕) */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="font-extrabold text-slate-900 group-hover:text-pink-600 transition-colors break-words truncate">
+                        {offset.title}
+                      </span>
+                      <span className={`inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold border shrink-0 ${
+                        isTaxi 
+                          ? 'bg-pink-50 text-pink-700 border-pink-200' 
+                          : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                      }`}>
+                        {isTaxi ? '車資單據' : '直接撥款'}
+                      </span>
                     </div>
-
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <div className="font-black text-pink-600 font-mono tabular-nums text-sm sm:text-base">
-                        - {formatTWD(offset.amountTWD)}
-                      </div>
-                      <div className="flex items-center gap-0.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                        {onEditOffset && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEditOffset(offset);
-                            }}
-                            className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                            title="編輯"
-                          >
-                            <Edit3 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                        {onDeleteOffset && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (confirm(`確定要刪除核銷記錄「${offset.title}」嗎？`)) {
-                                onDeleteOffset(offset.id);
-                              }
-                            }}
-                            className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                            title="刪除"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
+                    <div className="font-black text-pink-600 font-mono tabular-nums text-sm sm:text-base shrink-0">
+                      - {formatTWD(offset.amountTWD)}
                     </div>
                   </div>
 
-                  {/* Bottom Line: Date + Clean Route Badge */}
-                  <div className="flex items-center gap-2 flex-wrap text-[11px] pt-1 border-t border-slate-100">
-                    <span className="font-mono font-bold text-pink-700 shrink-0">{formatDate(offset.date)}</span>
-                    {(offset.origin || offset.destination) && (
-                      <div className="inline-flex items-center gap-1.5 text-slate-700 bg-slate-100/90 border border-slate-200/60 px-2 py-0.5 rounded-md text-[10px] font-medium max-w-full flex-wrap">
-                        <span className="inline-flex items-center gap-1">
-                          <MapPin className="h-2.5 w-2.5 text-pink-500 shrink-0" />
-                          <span>{offset.origin || '出發地'}</span>
-                        </span>
-                        <span className="text-slate-400">→</span>
-                        <span className="inline-flex items-center gap-1">
-                          <Navigation className="h-2.5 w-2.5 text-indigo-500 shrink-0" />
-                          <span>{offset.destination || '目的地'}</span>
-                        </span>
-                      </div>
+                  {/* Bottom line: Date · Route badge or note */}
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 pt-1 border-t border-slate-100 min-w-0">
+                    <span className="font-mono font-bold text-pink-700 shrink-0">
+                      {formatDate(offset.date)}
+                    </span>
+                    <span className="text-slate-300">·</span>
+                    {(offset.origin || offset.destination) ? (
+                      <span className="truncate text-slate-700 font-medium">
+                        {offset.origin || '出發地'} → {offset.destination || '目的地'}
+                      </span>
+                    ) : (
+                      <span className="truncate text-slate-500">
+                        {offset.notes || (isTaxi ? '計程車外勤單據' : '會計撥款核銷')}
+                      </span>
                     )}
                   </div>
                 </div>
